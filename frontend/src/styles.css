@@ -1,0 +1,520 @@
+/* ==========================================================================
+   CALL ME PROF - REFINED EDITORIAL DESIGN SYSTEM & MICRO-INTERACTIONS
+   Persona: Mahmoud Sayed Mohamed (Prof) - Junior Backend .NET Developer
+   Design Philosophy: Distinctive personal engineering workshop, clean editorial
+   lines, warm architectural paper palette (#FFDBBB, #CCBEB1), Full Delius typography,
+   no generic AI gradient blobs or cliché emoji fillers.
+   ========================================================================== */
+
+/* Arslan Wessam A Self-Hosted Font for Arabic */
+@font-face {
+  font-family: 'Arslan Wessam A';
+  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Warm Base Colors */
+  --color-warm-peach: #FFDBBB;
+  --color-warm-taupe: #CCBEB1;
+  --color-dark-taupe: #8E7A6B;
+
+  /* Light Mode Palette (Default) */
+  --bg-main: #FDF8F3;
+  --bg-surface: #FFFFFF;
+  --bg-surface-tint: #FFF7EE;
+  --bg-surface-accent: #F7EFE6;
+  --bg-code: #F4ECE3;
+  
+  --text-primary: #2E2A26;
+  --text-secondary: #6B5F55;
+  --text-muted: #8E8278;
+  --text-link: #8A7667;
+  
+  --border-strong: #DDCFC0;
+  --border-color: #E8DCCF;
+  --border-subtle: #F2E8DC;
+
+  --interactive: #A8988A;
+  --interactive-hover: #8F7E70;
+  --interactive-text: #FFFFFF;
+  --interactive-accent: #E08E58;
+  --btn-glow: rgba(168, 152, 138, 0.28);
+  --card-hover-border: #CCBEB1;
+
+  --tag-bg: #F5EAE0;
+  --tag-text: #6B5F55;
+
+  /* Font Family: Full Delius everywhere per user choice */
+  --font-primary: 'Delius', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  --font-arabic: 'Arslan Wessam A', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+
+  /* Layout & Radii: Clean, crisp, structural */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 9999px;
+  
+  /* Subtle structural shadows */
+  --shadow-subtle: 0 1px 3px rgba(46, 42, 38, 0.05);
+  --shadow-surface: 0 4px 14px rgba(46, 42, 38, 0.07);
+  --shadow-card-hover: 0 6px 20px rgba(46, 42, 38, 0.09);
+
+  --transition-fast: 200ms ease;
+  --transition-smooth: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dark Mode Palette */
+html.dark {
+  --bg-main: #1C1917;
+  --bg-surface: #26221F;
+  --bg-surface-tint: #2E2925;
+  --bg-surface-accent: #352F2A;
+  --bg-code: #161412;
+
+  --text-primary: #EDE4DA;
+  --text-secondary: #B0A399;
+  --text-muted: #877B72;
+  --text-link: #FFDBBB;
+
+  --border-strong: #4A423B;
+  --border-color: #3A342F;
+  --border-subtle: #2D2723;
+
+  --interactive: #FFDBBB;
+  --interactive-hover: #FCE6CE;
+  --interactive-text: #1C1917;
+  --interactive-accent: #FFDBBB;
+  --btn-glow: rgba(255, 219, 187, 0.22);
+  --card-hover-border: rgba(255, 219, 187, 0.4);
+
+  --tag-bg: #322B26;
+  --tag-text: #FFDBBB;
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-surface: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+/* Reset & Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-primary);
+  font-size: 1.0625rem; /* ~17px generous readable size */
+  line-height: 1.75;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+/* Headings & Display: Delius with comfortable weight */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-primary);
+  color: var(--text-primary);
+  font-weight: normal;
+  letter-spacing: 0.015em;
+  line-height: 1.35;
+}
+
+h1 { font-size: 2.35rem; margin-bottom: 0.85rem; }
+h2 { font-size: 1.85rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.4rem; margin-bottom: 0.6rem; }
+h4 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+
+/* Arabic typography support */
+[lang="ar"], .font-arabic, .rtl, [dir="rtl"] {
+  font-family: var(--font-arabic) !important;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.9;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Containers */
+.container {
+  width: 100%;
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* ==========================================================================
+   INTERACTIVE STATES: BUTTONS
+   Smooth transition combining slight scale (1.02), subtle shadow/glow,
+   and slight shift in background/border.
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+  position: relative;
+}
+
+.btn:active {
+  transform: scale(0.985) !important;
+}
+
+.btn-primary {
+  background-color: var(--interactive);
+  color: var(--interactive-text);
+  border-color: var(--interactive);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+  background-color: var(--interactive-hover);
+  border-color: var(--interactive-hover);
+  box-shadow: 0 4px 14px var(--btn-glow);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-subtle);
+}
+
+.btn-secondary:hover {
+  transform: scale(1.02);
+  background-color: var(--bg-surface-tint);
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 12px rgba(46, 42, 38, 0.08);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn-outline:hover {
+  transform: scale(1.02);
+  border-color: var(--interactive);
+  color: var(--interactive-accent);
+  background-color: var(--bg-surface-tint);
+}
+
+.btn-sm {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   INTERACTIVE STATES: LINKS (ANIMATED UNDERLINE)
+   Animated underline grows from left in the accent color
+   ========================================================================== */
+.animated-link, 
+.entry-read-link, 
+.read-more-link, 
+.pillar-link, 
+.author-links a, 
+.title-link,
+.action-link {
+  position: relative;
+  display: inline-block;
+  transition: color 200ms ease;
+}
+
+.animated-link::after, 
+.entry-read-link::after, 
+.read-more-link::after, 
+.pillar-link::after, 
+.author-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background-color: var(--interactive-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms ease;
+}
+
+.animated-link:hover::after, 
+.entry-read-link:hover::after, 
+.read-more-link:hover::after, 
+.pillar-link:hover::after, 
+.author-links a:hover::after {
+  transform: scaleX(1);
+}
+
+/* Prevent accidental text selection and outline drag artifacts while scrolling/clicking */
+.toc-link, .toc-desktop-header, .doc-breadcrumbs, .note-link {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.toc-link:focus, .note-link:focus, .breadcrumb-link:focus {
+  outline: none;
+}
+
+/* ==========================================================================
+   INTERACTIVE STATES: CARDS
+   Gentle lift (translateY(-3px)), soft shadow increase, and subtle border accent.
+   ========================================================================== */
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-subtle);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease, border-color 200ms ease, background-color 200ms ease;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+.card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--card-hover-border);
+  background-color: var(--bg-surface-tint);
+}
+
+/* Badges & Tags */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-xs);
+  background-color: var(--tag-bg);
+  color: var(--tag-text);
+  border: 1px solid var(--border-subtle);
+  letter-spacing: 0.02em;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.badge-peach {
+  background-color: rgba(255, 219, 187, 0.35);
+  color: var(--text-primary);
+  border-color: rgba(204, 190, 177, 0.45);
+}
+
+:host-context(html.dark) .badge-peach {
+  background-color: rgba(255, 219, 187, 0.15);
+  color: #FFDBBB;
+}
+
+/* Inputs & Form Controls */
+.input, .textarea, .select {
+  width: 100%;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  padding: 0.65rem 0.95rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.input:focus, .textarea:focus, .select:focus {
+  border-color: var(--color-warm-taupe);
+  box-shadow: 0 0 0 2px rgba(204, 190, 177, 0.2);
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.65;
+}
+
+/* Obsidian-Style Markdown Reader Styles */
+.markdown-body {
+  font-family: var(--font-primary);
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: var(--text-primary);
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3, 
+.markdown-body h4 {
+  margin-top: 2rem;
+  margin-bottom: 0.85rem;
+  color: var(--text-primary);
+  scroll-margin-top: 100px;
+}
+
+.markdown-body h1 {
+  font-size: 2.2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-body h2 {
+  font-size: 1.7rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.4rem;
+}
+
+.markdown-body h3 {
+  font-size: 1.35rem;
+}
+
+.markdown-body p {
+  margin-bottom: 1.35rem;
+}
+
+.markdown-body ul, .markdown-body ol {
+  margin-bottom: 1.35rem;
+  padding-left: 1.75rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.45rem;
+}
+
+.markdown-body blockquote {
+  margin: 1.75rem 0;
+  padding: 1rem 1.35rem;
+  border-left: 3px solid var(--color-warm-peach);
+  background-color: var(--bg-surface-tint);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.markdown-body code {
+  font-family: var(--font-code);
+  font-size: 0.9em;
+  padding: 0.15rem 0.4rem;
+  background-color: var(--bg-code);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  color: var(--text-link);
+}
+
+.markdown-body pre {
+  margin: 1.75rem 0;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--bg-code);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-family: var(--font-code);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  color: var(--text-primary);
+}
+
+.markdown-body table {
+  width: 100%;
+  margin: 1.75rem 0;
+  border-collapse: collapse;
+  border: 1px solid var(--border-color);
+}
+
+.markdown-body th, .markdown-body td {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: var(--bg-surface-tint);
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  margin: 1.75rem 0;
+  display: block;
+}
+
+.markdown-body hr {
+  margin: 2.25rem 0;
+  border: none;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--interactive);
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: PREFERS REDUCED MOTION
+   Disables or simplifies all transforms and transitions when OS setting is active
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+    transform: none !important;
+  }
+}
