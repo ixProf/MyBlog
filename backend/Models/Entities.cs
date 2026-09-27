@@ -173,3 +173,17 @@ public class Profile
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
+[Table("seed_history")]
+public class SeedHistory
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("key")]
+    public string Key { get; set; } = string.Empty;
+
+    [Column("seeded_at")]
+    public DateTime SeededAt { get; set; } = DateTime.UtcNow;
+}
+

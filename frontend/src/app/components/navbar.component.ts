@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import { QuestionsService } from '../services/questions.service';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,37 +15,55 @@ import { QuestionsService } from '../services/questions.service';
       <div class="container navbar-container">
         <!-- Logo / Brand -->
         <a routerLink="/" class="brand-link" id="nav-brand">
-          <div class="brand-avatar">
-            <span>P</span>
-          </div>
+          <img 
+            src="/assets/logo.png" 
+            alt="Prof" 
+            class="brand-logo-img" 
+            width="42" 
+            height="42"
+          />
           <div class="brand-text">
-            <span class="brand-title">Call Me Prof</span>
-            <span class="brand-subtitle">Backend .NET Developer</span>
+            <span class="brand-title">{{ translationService.t('nav.brand_title') }}</span>
+            <span class="brand-subtitle">{{ translationService.t('nav.brand_subtitle') }}</span>
           </div>
         </a>
 
         <!-- Desktop Navigation -->
         <nav class="nav-links">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" id="nav-home">Home</a>
-          <a routerLink="/blog" routerLinkActive="active" class="nav-item" id="nav-blog">Blog</a>
-          <a routerLink="/notes" routerLinkActive="active" class="nav-item" id="nav-notes">Academic Notes</a>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" id="nav-home">{{ translationService.t('nav.home') }}</a>
+          <a routerLink="/blog" routerLinkActive="active" class="nav-item" id="nav-blog">{{ translationService.t('nav.blog') }}</a>
+          <a routerLink="/notes" routerLinkActive="active" class="nav-item" id="nav-notes">{{ translationService.t('nav.notes') }}</a>
           <a routerLink="/ask" routerLinkActive="active" class="nav-item" id="nav-ask">
-            Ask
+            {{ translationService.t('nav.ask') }}
             @if (authService.isAdmin() && pendingQuestionsCount() > 0) {
               <span class="nav-badge">{{ pendingQuestionsCount() }}</span>
             }
           </a>
-          <a routerLink="/portfolio" routerLinkActive="active" class="nav-item" id="nav-portfolio">Portfolio</a>
+          <a routerLink="/portfolio" routerLinkActive="active" class="nav-item" id="nav-portfolio">{{ translationService.t('nav.portfolio') }}</a>
           @if (authService.isAdmin()) {
             <a routerLink="/editor" routerLinkActive="active" class="nav-item admin-link" id="nav-editor">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              Editor
+              {{ translationService.t('nav.editor') }}
             </a>
           }
         </nav>
 
-        <!-- Right Actions: Theme Toggle & Admin Actions -->
+        <!-- Right Actions: Language Switcher, Theme Toggle & Admin Actions -->
         <div class="nav-actions">
+          <!-- Real Bilingual Toggle (Arabic/English UI) -->
+          <button 
+            type="button" 
+            class="lang-toggle-btn" 
+            (click)="translationService.toggleLanguage()" 
+            [attr.aria-label]="translationService.currentLang() === 'en' ? 'Switch to Arabic' : 'Switch to English'"
+            id="lang-toggle-btn"
+            [title]="translationService.t('nav.lang_switch_title')"
+          >
+            <span class="lang-code" [class.active-lang]="translationService.currentLang() === 'en'">EN</span>
+            <span class="lang-divider">/</span>
+            <span class="lang-code font-ar" [class.active-lang]="translationService.currentLang() === 'ar'">عربي</span>
+          </button>
+
           <!-- Theme Toggle -->
           <button 
             type="button" 
@@ -52,7 +71,7 @@ import { QuestionsService } from '../services/questions.service';
             (click)="themeService.toggleTheme()" 
             [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
             id="theme-toggle-btn"
-            title="Toggle Light/Dark Mode"
+            [title]="translationService.t('nav.toggle_theme')"
           >
             @if (themeService.isDarkMode()) {
               <!-- Sun Icon -->
@@ -79,14 +98,14 @@ import { QuestionsService } from '../services/questions.service';
           @if (authService.isAdmin()) {
             <div class="admin-badge-group">
               <span class="badge badge-peach" title="Logged in as Admin">Prof</span>
-              <button type="button" class="btn-logout" (click)="authService.logout()" id="nav-logout-btn" title="Log out">
+              <button type="button" class="btn-logout" (click)="authService.logout()" id="nav-logout-btn" [title]="translationService.t('nav.logout')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </button>
             </div>
           } @else {
-            <button type="button" class="btn-prof-login" (click)="openLoginModal()" id="nav-login-btn" title="Admin Login">
+            <button type="button" class="btn-prof-login" (click)="openLoginModal()" id="nav-login-btn" [title]="translationService.t('nav.admin')">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <span>Admin</span>
+              <span>{{ translationService.t('nav.admin') }}</span>
             </button>
           }
 
@@ -100,14 +119,25 @@ import { QuestionsService } from '../services/questions.service';
       <!-- Mobile Dropdown -->
       @if (mobileMenuOpen()) {
         <div class="mobile-nav-panel">
-          <a routerLink="/" (click)="closeMobileMenu()" class="mobile-item">Home</a>
-          <a routerLink="/blog" (click)="closeMobileMenu()" class="mobile-item">Blog</a>
-          <a routerLink="/notes" (click)="closeMobileMenu()" class="mobile-item">Academic Notes</a>
-          <a routerLink="/ask" (click)="closeMobileMenu()" class="mobile-item">Ask a Question</a>
-          <a routerLink="/portfolio" (click)="closeMobileMenu()" class="mobile-item">Portfolio</a>
+          <a routerLink="/" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.home') }}</a>
+          <a routerLink="/blog" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.blog') }}</a>
+          <a routerLink="/notes" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.notes') }}</a>
+          <a routerLink="/ask" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.ask') }}</a>
+          <a routerLink="/portfolio" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.portfolio') }}</a>
           @if (authService.isAdmin()) {
-            <a routerLink="/editor" (click)="closeMobileMenu()" class="mobile-item admin-item">Obsidian Editor & Drawings</a>
+            <a routerLink="/editor" (click)="closeMobileMenu()" class="mobile-item admin-item">{{ translationService.t('nav.editor') }}</a>
           }
+          <div class="mobile-lang-row">
+            <button 
+              type="button" 
+              class="mobile-lang-btn" 
+              (click)="translationService.toggleLanguage()"
+              id="mobile-lang-toggle-btn"
+            >
+              <span class="lang-icon">🌐</span>
+              <span>{{ translationService.currentLang() === 'en' ? 'التبديل إلى العربي' : 'Switch to English' }}</span>
+            </button>
+          </div>
         </div>
       }
     </header>
@@ -134,19 +164,18 @@ import { QuestionsService } from '../services/questions.service';
       align-items: center;
       gap: 0.85rem;
     }
-    .brand-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, var(--color-warm-peach), var(--color-warm-taupe));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-heading);
-      font-size: 1.35rem;
-      color: #2E2A26;
-      font-weight: bold;
-      box-shadow: 0 2px 8px rgba(204, 190, 177, 0.4);
+    .brand-logo-img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      display: block;
+      background: transparent;
+      border: none;
+      transition: transform var(--transition-fast);
+      flex-shrink: 0;
+    }
+    .brand-link:hover .brand-logo-img {
+      transform: scale(1.06);
     }
     .brand-text {
       display: flex;
@@ -298,10 +327,63 @@ import { QuestionsService } from '../services/questions.service';
       border-bottom: 1px solid var(--border-color);
       gap: 0.75rem;
     }
-    .mobile-item {
-      padding: 0.5rem 0;
-      font-size: 1.05rem;
+    .lang-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      height: 38px;
+      padding: 0 0.65rem;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+    .lang-toggle-btn:hover {
       color: var(--text-primary);
+      border-color: var(--interactive);
+      background-color: var(--bg-card-hover);
+      transform: translateY(-1px);
+    }
+    .lang-code {
+      transition: color var(--transition-fast), font-weight var(--transition-fast);
+      letter-spacing: 0.02em;
+    }
+    .lang-code.active-lang {
+      color: var(--interactive-accent, #E08E58);
+      font-weight: 700;
+    }
+    .lang-divider {
+      color: var(--border-strong);
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+    .font-ar {
+      font-family: var(--font-arabic);
+      font-size: 0.92rem;
+    }
+    .mobile-lang-row {
+      margin-top: 0.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .mobile-lang-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background-color: var(--bg-surface-tint);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
     }
     @media (max-width: 820px) {
       .nav-links { display: none; }
@@ -313,6 +395,7 @@ export class NavbarComponent {
   authService = inject(AuthService);
   themeService = inject(ThemeService);
   questionsService = inject(QuestionsService);
+  translationService = inject(TranslationService);
 
   mobileMenuOpen = signal<boolean>(false);
 

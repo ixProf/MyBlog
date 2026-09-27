@@ -283,6 +283,32 @@ namespace backend.Migrations
                     b.ToTable("questions", (string)null);
                 });
 
+            modelBuilder.Entity("Backend.Models.SeedHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("key");
+
+                    b.Property<DateTime>("SeededAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("seeded_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("seed_history", (string)null);
+                });
+
             modelBuilder.Entity("Backend.Models.Subject", b =>
                 {
                     b.Property<int>("Id")

@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-footer',
@@ -14,42 +15,41 @@ import { RouterModule } from '@angular/router';
           <div class="footer-col brand-col">
             <h3 class="footer-title">Call Me Prof</h3>
             <p class="footer-desc">
-              Mahmoud Sayed Mohamed — Junior/Fresh Backend .NET Developer from Assiut, Egypt.
-              A unified digital workshop for architecture notes, backend performance deep dives, and public discussions.
+              {{ ts.t('footer.bio') }}
             </p>
             <div class="footer-status-pill">
               <span class="status-dot"></span>
-              <span>Available for Backend .NET Engineering Roles & Freelance</span>
+              <span>{{ ts.t('footer.status') }}</span>
             </div>
           </div>
 
           <!-- Col 2: Navigation -->
           <div class="footer-col">
-            <h4 class="col-title">Navigation</h4>
+            <h4 class="col-title">{{ ts.t('footer.nav_heading') }}</h4>
             <ul class="col-links">
-              <li><a routerLink="/">Home / Hero</a></li>
-              <li><a routerLink="/blog">Blog & Write-ups</a></li>
-              <li><a routerLink="/notes">Academic Notes</a></li>
-              <li><a routerLink="/ask">Ask a Question</a></li>
-              <li><a routerLink="/portfolio">Full Portfolio</a></li>
+              <li><a routerLink="/">{{ ts.t('footer.nav_home') }}</a></li>
+              <li><a routerLink="/blog">{{ ts.t('footer.nav_blog') }}</a></li>
+              <li><a routerLink="/notes">{{ ts.t('footer.nav_notes') }}</a></li>
+              <li><a routerLink="/ask">{{ ts.t('footer.nav_ask') }}</a></li>
+              <li><a routerLink="/portfolio">{{ ts.t('footer.nav_portfolio') }}</a></li>
             </ul>
           </div>
 
           <!-- Col 3: Academic & Tech -->
           <div class="footer-col">
-            <h4 class="col-title">Academic & Focus</h4>
+            <h4 class="col-title">{{ ts.t('footer.academic_heading') }}</h4>
             <ul class="col-links">
-              <li><span>Assiut National University</span></li>
-              <li><span>Software Engineering Dept</span></li>
-              <li><span>High-Throughput Web APIs</span></li>
-              <li><span>Distributed Storage & Relational DBs</span></li>
-              <li><span>Clean Architecture & xUnit</span></li>
+              <li><span>{{ ts.t('footer.academic_1') }}</span></li>
+              <li><span>{{ ts.t('footer.academic_2') }}</span></li>
+              <li><span>{{ ts.t('footer.academic_3') }}</span></li>
+              <li><span>{{ ts.t('footer.academic_4') }}</span></li>
+              <li><span>{{ ts.t('footer.academic_5') }}</span></li>
             </ul>
           </div>
 
           <!-- Col 4: Connect & Profiles -->
           <div class="footer-col">
-            <h4 class="col-title">Connect</h4>
+            <h4 class="col-title">{{ ts.t('footer.connect_heading') }}</h4>
             <div class="social-links">
               <a href="https://linkedin.com/in/mahmoud-sayed-mohamed" target="_blank" rel="noopener noreferrer" class="social-item">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
@@ -64,8 +64,8 @@ import { RouterModule } from '@angular/router';
         </div>
 
         <div class="footer-bottom">
-          <p>© 2026 Mahmoud Sayed Mohamed (Prof). All rights reserved.</p>
-          <p class="tech-credit">Crafted with Angular 19 & ASP.NET Core Clean Architecture</p>
+          <p>© 2026 {{ ts.t('footer.rights') }}</p>
+          <p class="tech-credit">{{ ts.t('footer.tech_credit') }}</p>
         </div>
       </div>
     </footer>
@@ -190,4 +190,6 @@ import { RouterModule } from '@angular/router';
     }
   `]
 })
-export class FooterComponent {}
+export class FooterComponent {
+  ts = inject(TranslationService);
+}

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PortfolioService } from '../services/portfolio.service';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-portfolio',
@@ -13,12 +14,12 @@ import { PortfolioService } from '../services/portfolio.service';
         <header class="portfolio-header">
           <div class="header-badge">
             <span class="badge-dot"></span>
-            <span>Production Engineering Portfolio</span>
+            <span>{{ ts.t('portfolio.badge') }}</span>
           </div>
 
           <h1 class="page-title">{{ p().name }}</h1>
           <div class="persona-sub">
-            <span class="alias-pill">Alias: "{{ p().alias }}"</span>
+            <span class="alias-pill">{{ ts.t('portfolio.alias_prefix') }} "{{ p().alias }}"</span>
             <span class="role-pill">{{ p().title }}</span>
             <span class="location-pill">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -33,11 +34,11 @@ import { PortfolioService } from '../services/portfolio.service';
           <div class="portfolio-links-row">
             <a [href]="p().links.linkedIn" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="portfolio-linkedin-btn">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-              <span>Connect on LinkedIn</span>
+              <span>{{ ts.t('portfolio.connect_linkedin') }}</span>
             </a>
             <a [href]="p().links.gitHub" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" id="portfolio-github-btn">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-              <span>GitHub (ixProf)</span>
+              <span>{{ ts.t('portfolio.view_github') }}</span>
             </a>
           </div>
         </header>
@@ -55,8 +56,8 @@ import { PortfolioService } from '../services/portfolio.service';
         <!-- FEATURED PROJECTS -->
         <section class="portfolio-section">
           <div class="section-title-wrap">
-            <span class="section-label">Delivered Systems</span>
-            <h2 class="section-title">Production Projects & Architecture</h2>
+            <span class="section-label">{{ ts.t('portfolio.section_systems') }}</span>
+            <h2 class="section-title">{{ ts.t('portfolio.section_systems_sub') }}</h2>
           </div>
 
           <div class="projects-list">
@@ -87,8 +88,8 @@ import { PortfolioService } from '../services/portfolio.service';
         <!-- WORK EXPERIENCE -->
         <section class="portfolio-section">
           <div class="section-title-wrap">
-            <span class="section-label">Track Record</span>
-            <h2 class="section-title">Work Experience</h2>
+            <span class="section-label">{{ ts.t('portfolio.section_experience') }}</span>
+            <h2 class="section-title">{{ ts.t('portfolio.section_experience_sub') }}</h2>
           </div>
 
           <div class="timeline">
@@ -113,8 +114,8 @@ import { PortfolioService } from '../services/portfolio.service';
         <!-- TECHNICAL SKILLS TAXONOMY -->
         <section class="portfolio-section">
           <div class="section-title-wrap">
-            <span class="section-label">Competencies</span>
-            <h2 class="section-title">Technical Skills</h2>
+            <span class="section-label">{{ ts.t('portfolio.section_skills') }}</span>
+            <h2 class="section-title">{{ ts.t('portfolio.section_skills_sub') }}</h2>
           </div>
 
           <div class="skills-grid">
@@ -137,8 +138,8 @@ import { PortfolioService } from '../services/portfolio.service';
             <!-- Education -->
             <div class="edu-col">
               <div class="section-title-wrap">
-                <span class="section-label">Academic Background</span>
-                <h2 class="section-title">Education</h2>
+                <span class="section-label">{{ ts.t('portfolio.section_education') }}</span>
+                <h2 class="section-title">{{ ts.t('portfolio.section_education_sub') }}</h2>
               </div>
               <div class="edu-card card">
                 <div class="edu-icon-wrap">
@@ -155,8 +156,8 @@ import { PortfolioService } from '../services/portfolio.service';
             <!-- Training -->
             <div class="training-col">
               <div class="section-title-wrap">
-                <span class="section-label">Certifications & Tracks</span>
-                <h2 class="section-title">Specialized Programs</h2>
+                <span class="section-label">{{ ts.t('portfolio.section_training') }}</span>
+                <h2 class="section-title">{{ ts.t('portfolio.section_training_sub') }}</h2>
               </div>
               <div class="training-cards">
                 @for (tr of p().training; track tr.program) {
@@ -486,5 +487,6 @@ import { PortfolioService } from '../services/portfolio.service';
 })
 export class PortfolioComponent {
   portfolioService = inject(PortfolioService);
+  ts = inject(TranslationService);
   p = () => this.portfolioService.portfolio();
 }

@@ -21,6 +21,18 @@ public static class DbInitializer
         try
         {
             await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS seed_history (
+                    id SERIAL PRIMARY KEY,
+                    key VARCHAR(128) UNIQUE NOT NULL,
+                    seeded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                );
+            ");
+        }
+        catch { }
+
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
                 CREATE TABLE IF NOT EXISTS subjects (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(255) UNIQUE NOT NULL,
@@ -113,30 +125,8 @@ public static class DbInitializer
         }
         catch { }
 
-        try
-        {
-            if (!await context.Questions.AnyAsync())
-            {
-                context.Questions.Add(new Question
-                {
-                    Id = "q-ef6d836dcb61",
-                    QuestionText = "ازيك يا عالمي",
-                    AnswerText = "بخير يا عالمي منور",
-                    Status = "answered",
-                    IsAnonymous = true,
-                    AskerName = "Anonymous",
-                    LikesCount = 1,
-                    ParentId = null,
-                    DisplayNumber = 1,
-                    CreatedAt = DateTime.UtcNow.AddDays(-2),
-                    AnsweredAt = DateTime.UtcNow.AddDays(-2).AddMinutes(1)
-                });
-                await context.SaveChangesAsync();
-            }
-        }
-        catch { }
-
-        if (!await context.Users.AnyAsync())
+        // 1. Keep Users admin account creation logic as-is (ensure admin account always exists)
+        if (!await context.Users.AnyAsync(u => u.Role == "Admin"))
         {
             // Single Admin credentials: username = "prof", password = "Prof@2026!"
             var passwordHash = BCrypt.Net.BCrypt.HashPassword("Prof@2026!");
@@ -150,9 +140,38 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        if (!await context.BlogPosts.AnyAsync())
+        // 2. Tracking mechanism: check if sample data has already been seeded once permanently
+        const string SampleDataSeedKey = "InitialSampleData";
+        try
         {
-            context.BlogPosts.AddRange(
+            var alreadySeeded = await context.SeedHistories.AnyAsync(s => s.Key == SampleDataSeedKey);
+            if (alreadySeeded)
+            {
+                // Seeding has already run once permanently.
+                // Skip all sample data insertion entirely (even if tables are currently empty).
+                return;
+            }
+
+            // Check if database was already populated prior to introducing SeedHistory
+            var hasExistingContent = await context.BlogPosts.AnyAsync() || await context.AcademicNotes.AnyAsync();
+            if (hasExistingContent)
+            {
+                context.SeedHistories.Add(new SeedHistory
+                {
+                    Key = SampleDataSeedKey,
+                    SeededAt = DateTime.UtcNow
+                });
+                await context.SaveChangesAsync();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SeedHistory Note]: {ex.Message}");
+        }
+
+        // 3. First-time Seeding: Insert sample BlogPosts, AcademicNotes, and Questions
+        context.BlogPosts.AddRange(
                 new BlogPost
                 {
                     Title = "How I Cut Database Response Times by 97% (12ms → 0.65ms) in Production",
@@ -354,24 +373,7 @@ By decoupling business validation from controller actions, we could write unit t
                 }
             );
             await context.SaveChangesAsync();
-        }
-        else
-        {
-            // Backfill RelatedPostIds for seeded posts if empty
-            var p1 = await context.BlogPosts.FirstOrDefaultAsync(b => b.Slug == "cut-database-response-times-97-percent");
-            if (p1 != null && string.IsNullOrEmpty(p1.RelatedPostIds)) p1.RelatedPostIds = "2,3";
 
-            var p2 = await context.BlogPosts.FirstOrDefaultAsync(b => b.Slug == "hybrid-payment-pipelines-aspnet-core");
-            if (p2 != null && string.IsNullOrEmpty(p2.RelatedPostIds)) p2.RelatedPostIds = "1,3";
-
-            var p3 = await context.BlogPosts.FirstOrDefaultAsync(b => b.Slug == "why-clean-architecture-kept-freelance-on-schedule");
-            if (p3 != null && string.IsNullOrEmpty(p3.RelatedPostIds)) p3.RelatedPostIds = "1,2";
-
-            await context.SaveChangesAsync();
-        }
-
-        if (!await context.AcademicNotes.AnyAsync())
-        {
             context.AcademicNotes.AddRange(
                 new AcademicNote
                 {
@@ -516,33 +518,44 @@ Daniel Abadi recognized that CAP only describes system behavior during partition
                 }
             );
             await context.SaveChangesAsync();
-        }
 
-        if (!await context.Questions.AnyAsync())
-        {
             context.Questions.AddRange(
+                new Question
+                {
+                    Id = "q-ef6d836dcb61",
+                    QuestionText = "ازيك يا عالمي",
+                    AnswerText = "بخير يا عالمي منور",
+                    Status = "answered",
+                    IsAnonymous = true,
+                    AskerName = "Anonymous",
+                    LikesCount = 1,
+                    ParentId = null,
+                    DisplayNumber = 1,
+                    CreatedAt = DateTime.UtcNow.AddDays(-2),
+                    AnsweredAt = DateTime.UtcNow.AddDays(-2).AddMinutes(1)
+                },
                 new Question
                 {
                     AskerName = "Karim (Computer Science Junior)",
                     QuestionText = "How do you prepare for backend .NET technical interviews while still studying at university?",
-            AnswerText = @"Great question! Here is the blueprint that worked for me:
+                    AnswerText = @"Great question! Here is the blueprint that worked for me:
 
 1. **Master the CLR & C# Foundations**: Don't just learn syntax. Understand value types vs reference types, boxing/unboxing, garbage collection generations (Gen 0, 1, 2), and how `async/await` uses state machines under the hood.
 2. **Build Real Production APIs, Not Just Tutorials**: Anyone can follow a 20-minute CRUD tutorial. Build an e-commerce backend with transactional orders, real payment flows, JWT refresh rotation, and xUnit test suites. Put your GitHub repository link right at the top of your resume.
 3. **Master SQL & Database Optimization**: Learn execution plans, clustered vs non-clustered indexes, and query profiling. In my freelance work, optimizing one query from 12ms to 0.65ms impressed clients and interviewers more than any certificate.
 4. **Learn Clean Architecture**: Separate your Domain entities from your EF Core DbContext and Web API controllers.",
-            Status = "answered",
-            IsAnonymous = false,
-            LikesCount = 0,
-            DisplayNumber = 1,
-            CreatedAt = DateTime.UtcNow.AddDays(-10),
-            AnsweredAt = DateTime.UtcNow.AddDays(-9)
+                    Status = "answered",
+                    IsAnonymous = false,
+                    LikesCount = 0,
+                    DisplayNumber = 2,
+                    CreatedAt = DateTime.UtcNow.AddDays(-10),
+                    AnsweredAt = DateTime.UtcNow.AddDays(-9)
                 },
                 new Question
                 {
-            AskerName = "Ahmed N.",
-            QuestionText = "When should I use SignalR instead of WebSockets directly in ASP.NET Core?",
-            AnswerText = @"In 99% of ASP.NET Core applications, you should use **SignalR** rather than raw WebSockets.
+                    AskerName = "Ahmed N.",
+                    QuestionText = "When should I use SignalR instead of WebSockets directly in ASP.NET Core?",
+                    AnswerText = @"In 99% of ASP.NET Core applications, you should use **SignalR** rather than raw WebSockets.
 
 SignalR provides:
 - **Automatic Fallback**: If WebSockets are blocked by corporate firewalls or proxies, SignalR automatically falls back to Server-Sent Events (SSE) or Long Polling.
@@ -550,27 +563,40 @@ SignalR provides:
 - **Scale-out Backplanes**: Effortless clustering across multiple server instances using Redis backplanes or Azure SignalR Service.
 
 We used SignalR in our **Restaurant POS System** to synchronize order status across kitchen, cashier, and waiter tablets with zero manual socket handshake boilerplate.",
-            Status = "answered",
-            IsAnonymous = false,
-            LikesCount = 0,
-            DisplayNumber = 2,
-            CreatedAt = DateTime.UtcNow.AddDays(-4),
-            AnsweredAt = DateTime.UtcNow.AddDays(-3)
+                    Status = "answered",
+                    IsAnonymous = false,
+                    LikesCount = 0,
+                    DisplayNumber = 3,
+                    CreatedAt = DateTime.UtcNow.AddDays(-4),
+                    AnsweredAt = DateTime.UtcNow.AddDays(-3)
                 },
                 new Question
                 {
-                    AskerName = null,
+                    AskerName = "Anonymous",
                     QuestionText = "What is your favorite book or resource for learning distributed systems and database engines?",
                     AnswerText = null,
                     Status = "pending",
                     IsAnonymous = true,
                     LikesCount = 0,
-                    DisplayNumber = 3,
+                    DisplayNumber = 4,
                     CreatedAt = DateTime.UtcNow.AddHours(-6)
                 }
             );
             await context.SaveChangesAsync();
 
-        }
+            // Mark seeding as completed permanently in SeedHistory table
+            try
+            {
+                context.SeedHistories.Add(new SeedHistory
+                {
+                    Key = SampleDataSeedKey,
+                    SeededAt = DateTime.UtcNow
+                });
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SeedHistory Warning]: Could not record seed completion: {ex.Message}");
+            }
     }
 }

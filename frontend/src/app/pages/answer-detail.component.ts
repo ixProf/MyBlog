@@ -53,7 +53,7 @@ import { Question } from '../models/models';
             </header>
 
             <!-- Question Headline -->
-            <h1 class="question-headline">
+            <h1 class="question-headline" dir="auto">
               {{ question()?.question_text }}
             </h1>
 
@@ -68,7 +68,7 @@ import { Question } from '../models/models';
 
               <div class="answer-body">
                 @for (para of answerParagraphs(); track $index) {
-                  <p class="answer-paragraph">{{ para }}</p>
+                  <p class="answer-paragraph" dir="auto">{{ para }}</p>
                 }
               </div>
             </section>

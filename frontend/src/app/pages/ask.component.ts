@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { AskService } from '../services/ask.service';
+import { TranslationService } from '../services/translation.service';
 import { Question, FeedStats, ProfileBio } from '../models/models';
 
 @Component({
@@ -15,9 +16,9 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
         <!-- 1. Hero Masthead -->
         <header class="ask-hero">
           <div class="hero-top-row">
-            <span class="system-tag">Q&amp;A / DIRECT</span>
+            <span class="system-tag">{{ ts.t('ask.direct_tag') }}</span>
             <a routerLink="/ask/about" class="about-prof-link">
-              <span>About Prof</span>
+              <span>{{ ts.t('ask.about_prof') }}</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             </a>
           </div>
@@ -29,24 +30,24 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
               <ellipse cx="19.8" cy="13.6" rx="1.3" ry="1.7" fill="currentColor"/>
               <path d="M11.8 18.8C13.6 22.4 18.4 22.4 20.2 18.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
             </svg>
-            <span>Ask Prof<span class="brand-accent">.</span></span>
+            <span>{{ ts.t('ask.hero_title') }}<span class="brand-accent">.</span></span>
           </h1>
 
           <p class="hero-subtitle">
-            {{ profile().name_en || 'Mahmoud Sayed Mohamed' }}
+            {{ (ts.currentLang() === 'ar' ? profile().name_ar : profile().name_en) || 'Mahmoud Sayed Mohamed' }}
             <span class="accent-dot">•</span>
-            Backend Developer
+            {{ ts.t('ask.hero_sub') }}
           </p>
         </header>
 
         <!-- 2. Primary Focal Point: Ask Question Card -->
         <section id="ask-section" class="ask-card card" aria-labelledby="ask-heading">
           <div class="card-intro">
-            <h2 id="ask-heading" class="card-heading">
-              What's on your mind<span class="brand-accent">?</span>
+            <h2 id="ask-heading" class="card-heading" [attr.dir]="ts.currentLang() === 'ar' ? 'rtl' : 'ltr'">
+              {{ ts.t('ask.card_heading') }}
             </h2>
-            <p class="card-subheading">
-              Got a question? Ask away — anonymously. I read every question and publish the answers here.
+            <p class="card-subheading" [attr.dir]="ts.currentLang() === 'ar' ? 'rtl' : 'ltr'">
+              {{ ts.t('ask.card_sub') }}
             </p>
           </div>
 
@@ -56,12 +57,12 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
               <div class="success-icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
-              <h3 class="success-title">Question sent!</h3>
+              <h3 class="success-title">{{ ts.t('ask.success_title') }}</h3>
               <p class="success-desc">
-                Thanks for reaching out. Prof will review your question and publish an answer on the feed soon.
+                {{ ts.t('ask.success_desc') }}
               </p>
               <button type="button" (click)="resetForm()" class="btn btn-secondary btn-sm ask-another-btn">
-                Ask another question
+                {{ ts.t('ask.ask_another') }}
               </button>
             </div>
           } @else {
@@ -72,10 +73,10 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                 <div class="reply-banner">
                   <div class="reply-content">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
-                    <span>REPLYING TO: &ldquo;{{ replyToQuestion()?.question_text }}&rdquo;</span>
+                    <span>{{ ts.t('ask.replying_to') }} &ldquo;{{ replyToQuestion()?.question_text }}&rdquo;</span>
                   </div>
                   <button type="button" (click)="clearReplyTo()" class="cancel-reply-btn" title="Cancel replying">
-                    Cancel
+                    {{ ts.t('ask.cancel_reply') }}
                   </button>
                 </div>
               }
@@ -93,11 +94,12 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   #questionTextarea
                   id="landing-question-input"
                   class="prominent-textarea"
-                  placeholder="Type your question here..."
+                  [placeholder]="ts.t('ask.textarea_placeholder')"
                   rows="4"
                   maxlength="2000"
                   [(ngModel)]="questionText"
                   name="questionText"
+                  dir="auto"
                   required
                 ></textarea>
               </div>
@@ -108,14 +110,15 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   <input
                     type="text"
                     class="name-input"
-                    placeholder="Name (optional)"
+                    [placeholder]="ts.t('ask.name_placeholder')"
                     maxlength="40"
                     [(ngModel)]="askerName"
                     name="askerName"
+                    dir="auto"
                   />
                   <span class="meta-separator">•</span>
                   <span class="char-counter" [class.char-warning]="charactersLeft() < 100">
-                    {{ charactersLeft() }} left
+                    {{ charactersLeft() }} {{ ts.t('ask.chars_left') }}
                   </span>
                 </div>
 
@@ -124,7 +127,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   class="btn btn-primary send-btn"
                   [disabled]="isSubmitting() || questionText.trim().length === 0"
                 >
-                  <span>{{ isSubmitting() ? 'Sending...' : 'Send question' }}</span>
+                  <span>{{ isSubmitting() ? ts.t('ask.sending_btn') : ts.t('ask.send_btn') }}</span>
                 </button>
               </div>
             </form>
@@ -135,7 +138,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
         <div class="section-divider">
           <div class="divider-line"></div>
           <span class="divider-label">
-            Public Archive <span class="divider-dot">•</span> Q&amp;A
+            {{ ts.t('ask.divider_archive') }} <span class="divider-dot">•</span> {{ ts.t('ask.divider_qa') }}
           </span>
           <div class="divider-line"></div>
         </div>
@@ -144,7 +147,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
         <section class="feed-section" aria-label="Public Q&A Feed">
           <div class="feed-controls-bar">
             <div class="controls-top">
-              <h2 class="feed-title">Public Archive</h2>
+              <h2 class="feed-title">{{ ts.t('ask.divider_archive') }}</h2>
 
               <!-- Sort Tabs -->
               <div class="tabs-group" role="tablist">
@@ -156,7 +159,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   role="tab"
                   [attr.aria-selected]="sortTab() === 'recent'"
                 >
-                  Recent
+                  {{ ts.t('ask.tab_recent') }}
                 </button>
                 <button
                   type="button"
@@ -166,7 +169,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   role="tab"
                   [attr.aria-selected]="sortTab() === 'liked'"
                 >
-                  Most Liked
+                  {{ ts.t('ask.tab_liked') }}
                 </button>
               </div>
             </div>
@@ -177,7 +180,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
               <input
                 type="text"
                 class="search-input"
-                placeholder="Search questions or answers..."
+                [placeholder]="ts.t('ask.search_placeholder')"
                 [(ngModel)]="searchQuery"
                 (ngModelChange)="onSearchChange($event)"
               />
@@ -202,7 +205,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   <!-- Thread context banner if follow-up -->
                   @if (q.parent_id && q.parent_question_text) {
                     <div class="card-thread-banner">
-                      <span class="thread-label">Follow-up to</span>
+                      <span class="thread-label">{{ ts.t('ask.follow_up_to') }}</span>
                       <a
                         [routerLink]="['/ask/answers', q.parent_id]"
                         (click)="$event.stopPropagation()"
@@ -215,7 +218,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   }
 
                   <!-- Question Headline -->
-                  <h3 class="question-headline">
+                  <h3 class="question-headline" dir="auto">
                     <a
                       [routerLink]="['/ask/answers', q.display_number ?? q.id]"
                       (click)="$event.stopPropagation()"
@@ -227,7 +230,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
 
                   <!-- Answer Preview Snippet -->
                   @if (q.answer_text) {
-                    <p class="answer-snippet">
+                    <p class="answer-snippet" dir="auto">
                       {{ getSnippet(q.answer_text) }}
                     </p>
                   }
@@ -236,8 +239,12 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                   <div class="card-bottom">
                     <div class="bottom-meta">
                       <span class="answered-date">
-                        Answered {{ formatDate(q.answered_at || q.created_at) }}
+                        {{ ts.t('ask.answered_prefix') }} {{ formatDate(q.answered_at || q.created_at) }}
                       </span>
+                      @if (q.asker_name) {
+                        <span class="meta-separator">•</span>
+                        <span class="asker-tag">{{ q.asker_name }}</span>
+                      }
 
                       <!-- Like button -->
                       <button
@@ -246,7 +253,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                         [class.active]="hasLiked(q.id)"
                         [disabled]="hasLiked(q.id)"
                         (click)="onLikeQuestion($event, q)"
-                        [title]="hasLiked(q.id) ? 'Liked' : 'Like question'"
+                        [title]="hasLiked(q.id) ? ts.t('ask.liked') : ts.t('ask.like')"
                         [attr.aria-label]="'Like question (' + q.likes_count + ')'"
                       >
                         <svg
@@ -271,10 +278,10 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                       >
                         @if (copiedMap()[q.id]) {
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                          <span class="copied-text">Copied!</span>
+                          <span class="copied-text">{{ ts.t('ask.copied') }}</span>
                         } @else {
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                          <span>Share</span>
+                          <span>{{ ts.t('ask.share') }}</span>
                         }
                       </button>
                     </div>
@@ -285,8 +292,8 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                         (click)="$event.stopPropagation()"
                         class="read-answer-link"
                       >
-                        <span>Read answer</span>
-                        <span class="arrow-glyph">→</span>
+                        <span>{{ ts.currentLang() === 'ar' ? 'اقرأ الإجابة' : 'Read answer' }}</span>
+                        <span class="arrow-glyph">{{ ts.currentLang() === 'ar' ? '←' : '→' }}</span>
                       </a>
                     }
                   </div>
@@ -295,10 +302,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
             </div>
           } @else {
             <div class="empty-state card">
-              <p class="empty-title">No answered questions found</p>
-              <p class="empty-desc">
-                {{ searchQuery.trim() ? 'Try a different search keyword.' : 'Be the first to ask a question above!' }}
-              </p>
+              <p class="empty-title">{{ ts.t('ask.no_questions') }}</p>
             </div>
           }
         </section>
@@ -842,6 +846,7 @@ export class AskComponent implements OnInit {
   private askService = inject(AskService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  ts = inject(TranslationService);
 
   @ViewChild('questionTextarea') questionTextarea?: ElementRef<HTMLTextAreaElement>;
 

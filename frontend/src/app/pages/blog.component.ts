@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BlogService } from '../services/blog.service';
 import { AuthService } from '../services/auth.service';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-blog',
@@ -15,16 +16,16 @@ import { AuthService } from '../services/auth.service';
         <!-- Header -->
         <div class="blog-header">
           <div class="header-left">
-            <span class="section-label">Engineering Log & Thoughts</span>
-            <h1 class="page-title">The Backend Dispatch</h1>
+            <span class="section-label">{{ ts.t('blog.label') }}</span>
+            <h1 class="page-title">{{ ts.t('blog.title') }}</h1>
             <p class="page-subtitle">
-              Deep dives into ASP.NET Core internals, database query tuning, transactional consistency, and software architecture.
+              {{ ts.t('blog.subtitle') }}
             </p>
           </div>
           @if (authService.isAdmin()) {
             <a routerLink="/editor" [queryParams]="{ type: 'blog' }" class="btn btn-primary" id="btn-write-post">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              <span>Write New Post</span>
+              <span>{{ ts.t('blog.write_new') }}</span>
             </a>
           }
         </div>
@@ -35,7 +36,7 @@ import { AuthService } from '../services/auth.service';
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input 
               type="text" 
-              placeholder="Search posts by title, keywords, or content..." 
+              [placeholder]="ts.t('blog.search_placeholder')" 
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
               class="search-input"
@@ -53,7 +54,7 @@ import { AuthService } from '../services/auth.service';
               [class.active]="selectedTag() === null" 
               (click)="selectedTag.set(null)"
             >
-              All Topics
+              {{ ts.t('blog.all_topics') }}
             </button>
             @for (tag of blogService.getAllTags(); track tag) {
               <button 
@@ -75,22 +76,22 @@ import { AuthService } from '../services/auth.service';
               <article class="blog-card card card-interactive" [id]="'post-card-' + post.slug">
                 <div class="blog-card-header">
                   <div class="meta-row">
-                    <span class="badge badge-peach">{{ post.readTimeMinutes }} min read</span>
+                    <span class="badge badge-peach">{{ post.readTimeMinutes }} {{ ts.t('blog.min_read') }}</span>
                     <time class="meta-date">{{ post.publishedAt | date:'mediumDate' }}</time>
                   </div>
                   @if (authService.isAdmin()) {
                     <div class="admin-actions">
-                      <a [routerLink]="['/editor']" [queryParams]="{ editId: post.id, type: 'blog' }" class="action-link" title="Edit in Obsidian Editor">Edit</a>
-                      <button type="button" class="action-link delete-link" (click)="onDelete(post.id, $event)" title="Delete post">Delete</button>
+                      <a [routerLink]="['/editor']" [queryParams]="{ editId: post.id, type: 'blog' }" class="action-link" title="Edit in Obsidian Editor">{{ ts.t('blog.edit') }}</a>
+                      <button type="button" class="action-link delete-link" (click)="onDelete(post.id, $event)" title="Delete post">{{ ts.t('blog.delete') }}</button>
                     </div>
                   }
                 </div>
 
-                <h2 class="blog-post-title">
+                <h2 class="blog-post-title" dir="auto">
                   <a [routerLink]="['/blog', post.slug]" class="title-link">{{ post.title }}</a>
                 </h2>
 
-                <p class="blog-post-excerpt">{{ post.excerpt }}</p>
+                <p class="blog-post-excerpt" dir="auto">{{ post.excerpt }}</p>
 
                 <div class="blog-card-footer">
                   <div class="tags-group">
@@ -101,7 +102,7 @@ import { AuthService } from '../services/auth.service';
                     }
                   </div>
                   <a [routerLink]="['/blog', post.slug]" class="read-more-link">
-                    Read Article →
+                    {{ ts.t('blog.read_article') }}
                   </a>
                 </div>
               </article>
@@ -110,9 +111,8 @@ import { AuthService } from '../services/auth.service';
         } @else {
           <div class="empty-state card">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <h3>No articles match your criteria</h3>
-            <p>Try searching for a different term or clear the tag filter.</p>
-            <button class="btn btn-secondary btn-sm" (click)="resetFilters()">Clear Filters</button>
+            <h3>{{ ts.t('blog.no_posts') }}</h3>
+            <button class="btn btn-secondary btn-sm" (click)="resetFilters()">{{ ts.t('blog.clear_filter') }}</button>
           </div>
         }
       </div>
@@ -300,6 +300,7 @@ import { AuthService } from '../services/auth.service';
 export class BlogComponent {
   blogService = inject(BlogService);
   authService = inject(AuthService);
+  ts = inject(TranslationService);
 
   searchQuery = signal<string>('');
   selectedTag = signal<string | null>(null);

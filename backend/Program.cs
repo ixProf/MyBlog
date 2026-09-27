@@ -60,7 +60,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // Add Dependency Injection
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ISupabaseStorageService, SupabaseStorageService>();
 builder.Services.AddSingleton<AskAuthService>();
 builder.Services.AddSingleton<AskRateLimitService>();
 
@@ -131,6 +133,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+var uploadsDir = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
+Directory.CreateDirectory(uploadsDir);
+
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsDir),
+    RequestPath = "/uploads"
+});
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();

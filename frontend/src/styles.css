@@ -6,13 +6,44 @@
    no generic AI gradient blobs or cliché emoji fillers.
    ========================================================================== */
 
-/* Arslan Wessam A Self-Hosted Font for Arabic */
+/* Arslan Wessam A Self-Hosted Font for Arabic Script via Unicode Range */
 @font-face {
   font-family: 'Arslan Wessam A';
   src: url('/fonts/ArslanWessamA.ttf') format('truetype');
-  font-weight: normal;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Synthesize Arslan Wessam A directly into 'Delius' for the Arabic Unicode range */
+@font-face {
+  font-family: 'Delius';
+  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Synthesize Arslan Wessam A into 'JetBrains Mono' for code editor and code blocks */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Synthesize Arslan Wessam A into 'Plus Jakarta Sans' */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
 }
 
 :root {
@@ -47,9 +78,10 @@
   --tag-bg: #F5EAE0;
   --tag-text: #6B5F55;
 
-  /* Font Family: Full Delius everywhere per user choice */
-  --font-primary: 'Delius', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-code: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  /* Font Family Stacks: Delius primary, Arslan Wessam A automatic for Arabic script */
+  --font-primary: 'Delius', 'Arslan Wessam A', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Delius', 'Arslan Wessam A', cursive, sans-serif;
+  --font-code: 'JetBrains Mono', 'Arslan Wessam A', 'Fira Code', Consolas, monospace;
   --font-arabic: 'Arslan Wessam A', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
 
   /* Layout & Radii: Clean, crisp, structural */
@@ -137,12 +169,40 @@ h2 { font-size: 1.85rem; margin-bottom: 0.75rem; }
 h3 { font-size: 1.4rem; margin-bottom: 0.6rem; }
 h4 { font-size: 1.15rem; margin-bottom: 0.5rem; }
 
-/* Arabic typography support */
-[lang="ar"], .font-arabic, .rtl, [dir="rtl"] {
-  font-family: var(--font-arabic) !important;
+/* Base typography and direction handling */
+html[dir="rtl"], body.rtl, [dir="rtl"] {
   direction: rtl;
   text-align: right;
-  line-height: 1.9;
+}
+
+html[dir="ltr"], [dir="ltr"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Ensure code blocks and editor code stay LTR with readable syntax flow */
+pre, code, kbd, samp, .editor-code {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate;
+}
+
+/* Natural bi-directional paragraph detection for mixed English & Arabic content:
+   Arabic paragraphs automatically render right-to-left,
+   English paragraphs automatically render left-to-right,
+   and mixed lines naturally use Arslan Wessam A for Arabic and Delius for English */
+.markdown-body,
+.preview-pane,
+.editor-textarea,
+.prominent-textarea,
+.article-entry,
+.doc-note-article,
+.question-headline,
+.answer-snippet,
+.answer-paragraph,
+.admin-textarea {
+  unicode-bidi: -webkit-plaintext;
+  unicode-bidi: plaintext;
 }
 
 /* Links */
@@ -473,10 +533,22 @@ a {
 .markdown-body img {
   max-width: 100%;
   height: auto;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  margin: 1.75rem 0;
+  margin: 2rem auto;
   display: block;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+:host-context(html.dark) .markdown-body img,
+html.dark .markdown-body img {
+  border-color: var(--border-color);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.markdown-body p:has(> img) {
+  text-align: center;
 }
 
 .markdown-body hr {
@@ -518,3 +590,238 @@ a {
     transform: none !important;
   }
 }
+
+/* ==========================================================================
+   FULL RTL LAYOUT MIRRORING (when Arabic is active)
+   ========================================================================== */
+html[dir="rtl"] {
+  --font-primary: 'Arslan Wessam A', 'Delius', cursive, sans-serif;
+  --font-heading: 'Arslan Wessam A', 'Delius', cursive, sans-serif;
+  line-height: 1.85;
+}
+
+/* Academic Notes Docs Layout RTL */
+html[dir="rtl"] .docs-sidebar {
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+
+html[dir="rtl"] .docs-toc-sidebar {
+  padding-left: 0;
+  padding-right: 1.25rem;
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+}
+
+/* Search inputs mirror icon to right side */
+html[dir="rtl"] .search-box svg,
+html[dir="rtl"] .search-wrap .search-icon {
+  left: auto;
+  right: 0.85rem;
+}
+
+html[dir="rtl"] .search-input,
+html[dir="rtl"] #blog-search-input,
+html[dir="rtl"] #docs-search-input {
+  padding-left: 0.85rem;
+  padding-right: 2.4rem;
+  text-align: right;
+}
+
+html[dir="rtl"] .clear-search,
+html[dir="rtl"] .clear-search-btn {
+  right: auto;
+  left: 0.75rem;
+}
+
+/* Folder chevrons mirroring in RTL */
+html[dir="rtl"] .folder-chevron {
+  transform: rotate(180deg);
+}
+html[dir="rtl"] .folder-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+/* Breadcrumbs mirroring */
+html[dir="rtl"] .bc-sep {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* Card arrows and indicators */
+html[dir="rtl"] .arrow-glyph,
+html[dir="rtl"] .entry-read-link svg {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* Portfolio timeline mirroring */
+html[dir="rtl"] .timeline {
+  border-left: none;
+  border-right: 2px solid var(--border-color);
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+
+html[dir="rtl"] .timeline-dot {
+  left: auto;
+  right: -1.95rem;
+}
+
+/* Ask Form Bottom Bar in RTL */
+html[dir="rtl"] .form-bottom-bar {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .bottom-left-controls {
+  flex-direction: row-reverse;
+}
+
+/* Footer layout in RTL */
+html[dir="rtl"] .footer-grid {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .footer-status-pill {
+  flex-direction: row;
+}
+
+/* Admin badge group */
+html[dir="rtl"] .admin-badge-group {
+  flex-direction: row-reverse;
+}
+
+/* ==========================================================================
+   RTL ELEMENT-LEVEL DIRECTION & PUNCTUATION ALIGNMENT
+   Ensure direction: rtl is applied directly to every text-containing element
+   so that trailing punctuation (؟, ،, ., !) renders at the logical end (left)
+   ========================================================================== */
+html[dir="rtl"],
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Direct element-level RTL enforcement */
+html[dir="rtl"] p,
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] li,
+html[dir="rtl"] blockquote,
+html[dir="rtl"] label,
+html[dir="rtl"] dt,
+html[dir="rtl"] dd,
+html[dir="rtl"] td,
+html[dir="rtl"] th,
+html[dir="rtl"] .summary-paragraph,
+html[dir="rtl"] .section-title,
+html[dir="rtl"] .section-label,
+html[dir="rtl"] .hero-title,
+html[dir="rtl"] .hero-bio,
+html[dir="rtl"] .pillar-title,
+html[dir="rtl"] .pillar-desc,
+html[dir="rtl"] .pillar-link,
+html[dir="rtl"] .card-heading,
+html[dir="rtl"] .card-subheading,
+html[dir="rtl"] .prompt-title,
+html[dir="rtl"] .prompt-desc,
+html[dir="rtl"] .proj-title,
+html[dir="rtl"] .proj-highlights,
+html[dir="rtl"] .exp-role,
+html[dir="rtl"] .exp-company,
+html[dir="rtl"] .exp-details,
+html[dir="rtl"] .cat-title,
+html[dir="rtl"] .edu-degree,
+html[dir="rtl"] .edu-inst,
+html[dir="rtl"] .edu-meta,
+html[dir="rtl"] .tr-program,
+html[dir="rtl"] .tr-track,
+html[dir="rtl"] .footer-bio,
+html[dir="rtl"] .footer-nav-title,
+html[dir="rtl"] .footer-nav-link,
+html[dir="rtl"] .footer-bottom-copy {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Ensure inline elements in RTL context also follow bidi flow */
+html[dir="rtl"] span:not(.font-mono):not(.code-font):not(.metric-num):not(.badge-dot),
+html[dir="rtl"] a,
+html[dir="rtl"] strong,
+html[dir="rtl"] em {
+  direction: rtl;
+}
+
+/* Auto-bidi isolation for user-generated content (Blog, Notes, Ask, Markdown, Textarea) */
+[dir="auto"] {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+[dir="rtl"],
+html[dir="rtl"] [dir="rtl"] {
+  direction: rtl !important;
+  text-align: right !important;
+  unicode-bidi: plaintext;
+}
+
+[dir="ltr"],
+html[dir="rtl"] [dir="ltr"] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: plaintext;
+}
+
+/* Markdown blocks with dir="auto" properly align Arabic vs English */
+.markdown-body [dir="auto"],
+.preview-pane [dir="auto"] {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* Blockquote in RTL layout */
+html[dir="rtl"] .markdown-body blockquote,
+.markdown-body blockquote[dir="rtl"] {
+  border-left: none;
+  border-right: 3px solid var(--color-warm-peach);
+  border-radius: var(--radius-xs) 0 0 var(--radius-xs);
+  text-align: right;
+  direction: rtl;
+}
+
+/* List indentation in RTL layout */
+html[dir="rtl"] .markdown-body ul,
+html[dir="rtl"] .markdown-body ol,
+.markdown-body ul[dir="rtl"],
+.markdown-body ol[dir="rtl"] {
+  padding-left: 0;
+  padding-right: 1.75rem;
+}
+
+/* Code, Pre, Terminal, and Monospace elements MUST ALWAYS remain strictly LTR */
+pre,
+code,
+kbd,
+samp,
+.code-block,
+.hljs,
+.katex,
+html[dir="rtl"] pre,
+html[dir="rtl"] code,
+html[dir="rtl"] kbd,
+html[dir="rtl"] samp,
+html[dir="rtl"] .code-block,
+html[dir="rtl"] .hljs,
+html[dir="rtl"] .katex,
+html[dir="rtl"] pre *,
+html[dir="rtl"] code * {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate !important;
+}
+

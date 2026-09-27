@@ -17,7 +17,16 @@ export class MarkdownService {
     renderer.heading = ({ text, depth }: { text: string; depth: number }) => {
       const plainText = text.replace(/<[^>]*>/g, '').trim();
       const slug = this.slugify(plainText);
-      return `<h${depth} id="${slug}" class="doc-heading doc-h${depth}">${text}</h${depth}>\n`;
+      return `<h${depth} id="${slug}" class="doc-heading doc-h${depth}" dir="auto">${text}</h${depth}>\n`;
+    };
+    renderer.paragraph = ({ text }: { text: string }) => {
+      return `<p dir="auto">${text}</p>\n`;
+    };
+    renderer.blockquote = ({ text }: { text: string }) => {
+      return `<blockquote dir="auto">${text}</blockquote>\n`;
+    };
+    renderer.listitem = ({ text }: { text: string }) => {
+      return `<li dir="auto">${text}</li>\n`;
     };
 
     marked.use({ renderer });

@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<AdminLoginAttempt> AdminLoginAttempts => Set<AdminLoginAttempt>();
     public DbSet<Profile> Profiles => Set<Profile>();
+    public DbSet<SeedHistory> SeedHistories => Set<SeedHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +64,13 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("profile");
             entity.HasKey(e => e.Id);
+        });
+
+        modelBuilder.Entity<SeedHistory>(entity =>
+        {
+            entity.ToTable("seed_history");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Key).IsUnique();
         });
     }
 }

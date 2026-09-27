@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NotesService } from '../services/notes.service';
 import { MarkdownService } from '../services/markdown.service';
 import { AuthService } from '../services/auth.service';
+import { TranslationService } from '../services/translation.service';
 import { AcademicNote, TocItem } from '../models/models';
 import { TableOfContentsComponent } from '../components/table-of-contents.component';
 
@@ -19,7 +20,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
         <div class="sidebar-header">
           <div class="sidebar-title-group">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            <h2 class="sidebar-heading">Course Folders</h2>
+            <h2 class="sidebar-heading">{{ ts.t('notes.folders_heading') }}</h2>
           </div>
           @if (authService.isAdmin()) {
             <div class="sidebar-header-actions">
@@ -32,11 +33,11 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                 id="btn-create-folder"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-                <span>+ Folder</span>
+                <span>{{ ts.t('notes.btn_add_folder') }}</span>
               </button>
               <a [routerLink]="['/editor']" [queryParams]="{ type: 'note' }" class="header-action-btn" title="Add New Lecture Note" id="btn-add-note">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                <span>+ Note</span>
+                <span>{{ ts.t('notes.btn_add_note') }}</span>
               </a>
             </div>
           }
@@ -45,12 +46,12 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
         <!-- Inline Create Folder Input for Admin -->
         @if (authService.isAdmin() && showNewFolderForm()) {
           <div class="new-folder-card">
-            <div class="new-folder-label">New Subject Folder</div>
+            <div class="new-folder-label">{{ ts.t('notes.new_folder_title') }}</div>
             <div class="new-folder-input-row">
               <input 
                 type="text" 
                 [(ngModel)]="newFolderName" 
-                placeholder="Folder name (e.g. Distributed Systems)..." 
+                [placeholder]="ts.t('notes.folder_name_placeholder')" 
                 class="input new-folder-input"
                 (keydown.enter)="onCreateSubject()"
                 (keydown.escape)="showNewFolderForm.set(false)"
@@ -65,10 +66,10 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                 [disabled]="!newFolderName.trim()"
                 id="btn-submit-folder"
               >
-                Create Folder
+                {{ ts.t('notes.create_folder') }}
               </button>
               <button type="button" class="btn btn-secondary btn-xs" (click)="showNewFolderForm.set(false)">
-                Cancel
+                {{ ts.t('notes.cancel') }}
               </button>
             </div>
           </div>
@@ -78,7 +79,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
           <input 
             type="text" 
             [(ngModel)]="searchQuery" 
-            placeholder="Search folders & topics..." 
+            [placeholder]="ts.t('notes.search_placeholder')" 
             class="input search-docs-input"
             id="docs-search-input"
           />
@@ -207,9 +208,9 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
             <article class="doc-note-article">
               <!-- Documentation Breadcrumbs -->
               <nav class="doc-breadcrumbs" aria-label="Breadcrumbs">
-                <a routerLink="/" class="breadcrumb-link">Home</a>
+                <a routerLink="/" class="breadcrumb-link">{{ ts.t('nav.home') }}</a>
                 <span class="bc-sep">/</span>
-                <a routerLink="/notes" class="breadcrumb-link">Academic Notes</a>
+                <a routerLink="/notes" class="breadcrumb-link">{{ ts.t('nav.notes') }}</a>
                 <span class="bc-sep">/</span>
                 <span class="bc-subject">{{ selectedNote()!.subject }}</span>
                 <span class="bc-sep">/</span>
@@ -218,21 +219,21 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
 
               <!-- Plain Metadata Header (no boxed container) -->
               <header class="doc-note-header">
-                <h1 class="doc-note-title">{{ selectedNote()!.title }}</h1>
+                <h1 class="doc-note-title" dir="auto">{{ selectedNote()!.title }}</h1>
 
                 <div class="doc-meta-row">
                   <span class="badge badge-peach">{{ selectedNote()!.subject }}</span>
                   <span class="meta-separator">&bull;</span>
-                  <span class="meta-inst">Assiut National University</span>
+                  <span class="meta-inst">{{ ts.t('footer.academic_1') }}</span>
                   <span class="meta-separator">&bull;</span>
-                  <time class="meta-updated">Updated {{ selectedNote()!.updatedAt | date:'mediumDate' }}</time>
+                  <time class="meta-updated">{{ selectedNote()!.updatedAt | date:'mediumDate' }}</time>
                   @if (authService.isAdmin()) {
                     <span class="meta-separator">&bull;</span>
                     <a [routerLink]="['/editor']" [queryParams]="{ editId: selectedNote()!.id, type: 'note' }" class="edit-link">
-                      Edit Note
+                      {{ ts.t('notes.edit_note') }}
                     </a>
                     <button type="button" class="delete-btn-text" (click)="onDeleteNote(selectedNote()!.id)">
-                      Delete Note
+                      {{ ts.t('notes.delete_note') }}
                     </button>
                   }
                 </div>
@@ -247,7 +248,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
               <div class="docs-pager">
                 @if (previousNote()) {
                   <button type="button" class="pager-btn pager-prev" (click)="selectNote(previousNote()!.slug)">
-                    <span class="pager-dir">&larr; Previous Note</span>
+                    <span class="pager-dir">&larr;</span>
                     <span class="pager-title">{{ previousNote()!.title }}</span>
                   </button>
                 } @else {
@@ -256,7 +257,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
 
                 @if (nextNote()) {
                   <button type="button" class="pager-btn pager-next" (click)="selectNote(nextNote()!.slug)">
-                    <span class="pager-dir">Next Note &rarr;</span>
+                    <span class="pager-dir">&rarr;</span>
                     <span class="pager-title">{{ nextNote()!.title }}</span>
                   </button>
                 }
@@ -270,8 +271,8 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
           </div>
         } @else {
           <div class="empty-docs">
-            <h3>Select a course summary from the sidebar</h3>
-            <p>Browse through subject folders to read lecture notes and summaries.</p>
+            <h3>{{ ts.t('notes.select_prompt_title') }}</h3>
+            <p>{{ ts.t('notes.select_prompt_desc') }}</p>
           </div>
         }
       </main>
@@ -788,6 +789,7 @@ export class AcademicNotesComponent implements OnInit {
   notesService = inject(NotesService);
   markdownService = inject(MarkdownService);
   authService = inject(AuthService);
+  ts = inject(TranslationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 

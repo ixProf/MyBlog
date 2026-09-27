@@ -34,7 +34,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
             <main class="doc-main-content">
               <!-- Plain Metadata Header (no boxed container) -->
               <header class="doc-article-header">
-                <h1 class="doc-article-title">{{ post()!.title }}</h1>
+                <h1 class="doc-article-title" dir="auto">{{ post()!.title }}</h1>
 
                 <div class="doc-meta-row">
                   <div class="author-snippet">

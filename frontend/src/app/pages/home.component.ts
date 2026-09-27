@@ -5,6 +5,7 @@ import { BlogService } from '../services/blog.service';
 import { NotesService } from '../services/notes.service';
 import { PortfolioService } from '../services/portfolio.service';
 import { QuestionsService } from '../services/questions.service';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-home',
@@ -18,27 +19,27 @@ import { QuestionsService } from '../services/questions.service';
           <div class="hero-layout">
             <div class="alias-badge">
               <span class="badge-dot"></span>
-              <span>Personal Workshop & Technical Dispatch</span>
+              <span>{{ ts.t('home.badge') }}</span>
             </div>
             
             <h1 class="hero-title">
-              My Name is Mahmoud, But You Can Call Me <span class="highlight-prof">Prof</span>.
+              {{ ts.t('home.hero_title_pre') }} <span class="highlight-prof">{{ ts.t('home.hero_title_prof') }}</span>.
             </h1>
 
             <p class="hero-bio">
-              A personal space for deep-dive write-ups on production ASP.NET Core APIs, database execution plans, and university course summaries. Built with deliberate architectural clarity — no filler, just engineering notes and real systems.
+              {{ ts.t('home.hero_bio') }}
             </p>
 
             <div class="hero-actions">
               <a routerLink="/portfolio" class="btn btn-primary" id="hero-portfolio-btn">
-                <span>Explore Portfolio & Projects</span>
+                <span>{{ ts.t('home.btn_portfolio') }}</span>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </a>
               <a routerLink="/blog" class="btn btn-secondary" id="hero-blog-btn">
-                <span>Read Blog Articles</span>
+                <span>{{ ts.t('home.btn_blog') }}</span>
               </a>
               <a routerLink="/ask" class="btn btn-outline" id="hero-ask-btn">
-                <span>Ask a Question</span>
+                <span>{{ ts.t('home.btn_ask') }}</span>
               </a>
             </div>
 
@@ -46,19 +47,19 @@ import { QuestionsService } from '../services/questions.service';
             <div class="hero-stats-strip">
               <div class="stat-block">
                 <span class="stat-num">200+</span>
-                <span class="stat-label">Production Endpoints</span>
+                <span class="stat-label">{{ ts.t('home.stat_endpoints') }}</span>
               </div>
               <div class="stat-block">
                 <span class="stat-num">97%</span>
-                <span class="stat-label">Latency Reduction (12ms → 0.65ms)</span>
+                <span class="stat-label">{{ ts.t('home.stat_latency') }}</span>
               </div>
               <div class="stat-block">
                 <span class="stat-num">66</span>
-                <span class="stat-label">Real-Time POS Endpoints (SignalR)</span>
+                <span class="stat-label">{{ ts.t('home.stat_signalr') }}</span>
               </div>
               <div class="stat-block">
                 <span class="stat-num">45+</span>
-                <span class="stat-label">Clean Controllers Authored</span>
+                <span class="stat-label">{{ ts.t('home.stat_controllers') }}</span>
               </div>
             </div>
 
@@ -79,9 +80,9 @@ import { QuestionsService } from '../services/questions.service';
       <section class="pillars-section">
         <div class="container">
           <div class="section-header">
-            <span class="section-label">Architecture</span>
-            <h2 class="section-title">The Four Main Pillars</h2>
-            <p class="section-sub">A single unified system connecting long-form writing, course archives, public Q&A, and production code.</p>
+            <span class="section-label">{{ ts.t('home.pillars_label') }}</span>
+            <h2 class="section-title">{{ ts.t('home.pillars_title') }}</h2>
+            <p class="section-sub">{{ ts.t('home.pillars_sub') }}</p>
           </div>
 
           <div class="pillars-grid">
@@ -89,9 +90,9 @@ import { QuestionsService } from '../services/questions.service';
             <a routerLink="/blog" class="pillar-card card card-interactive" id="pillar-blog">
               <div class="pillar-num-badge">01</div>
               <div class="pillar-body">
-                <h3 class="pillar-title">The Blog</h3>
-                <p class="pillar-desc">Deep-dive technical write-ups on async query tuning, transaction isolation, and Clean Architecture.</p>
-                <span class="pillar-link">Browse {{ blogService.posts().length }} articles →</span>
+                <h3 class="pillar-title">{{ ts.t('home.pillar_blog_title') }}</h3>
+                <p class="pillar-desc">{{ ts.t('home.pillar_blog_desc') }}</p>
+                <span class="pillar-link">{{ ts.t('home.pillar_blog_action', { count: blogService.posts().length }) }}</span>
               </div>
             </a>
 
@@ -99,9 +100,9 @@ import { QuestionsService } from '../services/questions.service';
             <a routerLink="/notes" class="pillar-card card card-interactive" id="pillar-notes">
               <div class="pillar-num-badge">02</div>
               <div class="pillar-body">
-                <h3 class="pillar-title">Academic Notes</h3>
-                <p class="pillar-desc">Documentation-style course summaries for Operating Systems, Distributed Systems, and Database Engines.</p>
-                <span class="pillar-link">Browse course summaries →</span>
+                <h3 class="pillar-title">{{ ts.t('home.pillar_notes_title') }}</h3>
+                <p class="pillar-desc">{{ ts.t('home.pillar_notes_desc') }}</p>
+                <span class="pillar-link">{{ ts.t('home.pillar_notes_action') }}</span>
               </div>
             </a>
 
@@ -109,9 +110,9 @@ import { QuestionsService } from '../services/questions.service';
             <a routerLink="/ask" class="pillar-card card card-interactive" id="pillar-ask">
               <div class="pillar-num-badge">03</div>
               <div class="pillar-body">
-                <h3 class="pillar-title">Public Q&A</h3>
-                <p class="pillar-desc">Anonymous visitor questions answered publicly by Prof on backend roadmaps, concurrency, and study tips.</p>
-                <span class="pillar-link">Ask anonymously or read feed →</span>
+                <h3 class="pillar-title">{{ ts.t('home.pillar_ask_title') }}</h3>
+                <p class="pillar-desc">{{ ts.t('home.pillar_ask_desc') }}</p>
+                <span class="pillar-link">{{ ts.t('home.pillar_ask_action') }}</span>
               </div>
             </a>
 
@@ -119,9 +120,9 @@ import { QuestionsService } from '../services/questions.service';
             <a routerLink="/portfolio" class="pillar-card card card-interactive" id="pillar-portfolio">
               <div class="pillar-num-badge">04</div>
               <div class="pillar-body">
-                <h3 class="pillar-title">Backend Portfolio</h3>
-                <p class="pillar-desc">Live production systems (Alaris Nexus, Restaurant POS, University Attendance) and freelance delivery logs.</p>
-                <span class="pillar-link">Inspect production code & specs →</span>
+                <h3 class="pillar-title">{{ ts.t('home.pillar_portfolio_title') }}</h3>
+                <p class="pillar-desc">{{ ts.t('home.pillar_portfolio_desc') }}</p>
+                <span class="pillar-link">{{ ts.t('home.pillar_portfolio_action') }}</span>
               </div>
             </a>
           </div>
@@ -133,17 +134,17 @@ import { QuestionsService } from '../services/questions.service';
         <div class="container">
           <div class="recent-header">
             <div>
-              <span class="section-label">Selected Articles</span>
-              <h2 class="section-title">Latest Write-ups</h2>
+              <span class="section-label">{{ ts.t('home.recent_label') }}</span>
+              <h2 class="section-title">{{ ts.t('home.recent_title') }}</h2>
             </div>
-            <a routerLink="/blog" class="btn btn-outline btn-sm">View All Articles</a>
+            <a routerLink="/blog" class="btn btn-outline btn-sm">{{ ts.t('home.recent_all') }}</a>
           </div>
 
           <div class="articles-list">
             @for (post of blogService.posts().slice(0, 3); track post.id) {
               <article class="article-entry card card-interactive">
                 <div class="entry-meta">
-                  <span class="badge badge-peach">{{ post.readTimeMinutes }} min read</span>
+                  <span class="badge badge-peach">{{ post.readTimeMinutes }} {{ ts.t('home.min_read') }}</span>
                   <time class="meta-time">{{ post.publishedAt | date:'mediumDate' }}</time>
                 </div>
                 <h3 class="entry-title">
@@ -158,7 +159,7 @@ import { QuestionsService } from '../services/questions.service';
                       }
                     }
                   </div>
-                  <a [routerLink]="['/blog', post.slug]" class="entry-read-link">Read Note →</a>
+                  <a [routerLink]="['/blog', post.slug]" class="entry-read-link">{{ ts.t('home.read_note') }}</a>
                 </div>
               </article>
             }
@@ -425,4 +426,5 @@ export class HomeComponent {
   notesService = inject(NotesService);
   portfolioService = inject(PortfolioService);
   questionsService = inject(QuestionsService);
+  ts = inject(TranslationService);
 }

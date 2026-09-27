@@ -105,6 +105,111 @@ export const INITIAL_PORTFOLIO: PortfolioData = {
   }
 };
 
+export const INITIAL_PORTFOLIO_AR: PortfolioData = {
+  name: 'محمود سيد محمد',
+  alias: 'بروف',
+  title: 'مهندس باك إند دوت نت (Junior / Fresh)',
+  location: 'أسيوط، مصر',
+  summary: 'مهندس باك إند دوت نت شغال في بناء أنظمة APIs فعلية باستخدام ASP.NET Core، من أول تصميم الداتابيز لحد ما السيستم يترفع لايف على السيرفر. سلمت أكتر من ٢٠٠ إندبوينت في مشاريع فريلانس ومنتجات حقيقية، ونجحت في تسريع زمن استجابة استعلامات الداتابيز بنسبة ٩٧٪ على سيستم إنتاج شغال فعلياً بتحسين الاستعلامات والـ Async. متعود أشيل الباك إند من الألف للياء: الـ Authentication، معاملات الداتابيز (Transactions)، كتابة الـ Unit Tests، واستخراج التقارير، في منصات الحجوزات، الـ E-Commerce، نقاط البيع اللحظية (POS)، والأنظمة الجامعية.',
+  metrics: [
+    { label: 'إندبوينت شغالين في الإنتاج', value: '٢٠٠+' },
+    { label: 'نسبة تسريع الاستعلامات', value: '٩٧٪' },
+    { label: 'معماريات برمجية في الإنتاج', value: '٣+' },
+    { label: 'إجمالي الكنترولرز البرمجية', value: '٤٥+' }
+  ],
+  projects: [
+    {
+      title: 'Alaris Nexus — منصة إدارة المتاجر الإلكترونية',
+      url: 'https://alaris-nexus.vercel.app',
+      highlights: 'أكتر من ٦٠ إندبوينت REST متقسمين على ١٦ كنترولر، مبنية بنظام الطبقات المنفصلة (Repository / Service / DTO)؛ دورة دفع هجينة (JWT مع تدوير الـ Refresh Tokens، مراجعة دفع فودافون كاش، ودفتر حسابات الدفع عند الاستلام) مربوطة بمعاملات داتابيز مع اختبارات xUnit؛ تقارير أوتوماتيك إكسيل (ClosedXML) وPDF (QuestPDF)؛ كاشينج باستخدام Redis؛ دوكر Docker؛ وتسجيل أخطاء بـ Serilog.',
+      tags: ['ASP.NET Core', 'SQL Server', 'Redis', 'Docker', 'QuestPDF', 'ClosedXML', 'xUnit', 'Serilog']
+    },
+    {
+      title: 'نظام إدارة المطاعم ونقاط البيع اللحظية (POS)',
+      url: 'https://client-cyan-alpha-16.vercel.app',
+      highlights: 'باك إند كامل فيه ٦٦ إندبوينت (١٠ كنترولرز) للطلبات والمخازن والمدفوعات والمسترجعات، بمعمارية نظيفة Clean Architecture، وFluentValidation، وMapster؛ ربط SignalR لتحديث ومزامنة حالة الأوردرات لحظياً بين المطبخ والكاشير والويتر؛ ٤ صلاحيات مستخدمين بتوثيق JWT؛ واختبارات xUnit.',
+      tags: ['Clean Architecture', 'SignalR', 'FluentValidation', 'Mapster', 'JWT Auth', 'xUnit']
+    },
+    {
+      title: 'نظام إدارة الحضور والغياب والمقررات الجامعية',
+      url: 'https://github.com/ixProf/Attendance-System',
+      highlights: 'منصة أكاديمية بـ ٤ صلاحيات (١٠ كنترولرز و١١ سيرفس)، تسجيل حضور بالـ QR كود، قفل الجلسات تلقائياً، تتبع درجات الطلاب المعرضين للرسوب أوتوماتيك، وإشعارات لحظية عبر SignalR.',
+      tags: ['ASP.NET Core', 'QR Attendance', 'SignalR', 'RBAC', 'Academic Tech']
+    }
+  ],
+  experience: [
+    {
+      role: 'مطور باك إند (فريلانس)',
+      company: 'واحات الدرعية',
+      location: 'عن بُعد — السعودية',
+      period: '04/2026 – 05/2026',
+      details: 'بناء ٣٠ إندبوينت REST على ٧ كنترولرز خلال ٦ أسابيع بمعمارية نظيفة Clean Architecture؛ دورة حجز كاملة بـ ٤ حالات لمنع تضارب المواعيد؛ لوحة تحكم مالية بتقارير PDF شهرية (QuestPDF)؛ توثيق أمان بـ JWT وBCrypt مع حماية ضد الـ Brute Force؛ وديمو أسبوعي مع العميل.'
+    },
+    {
+      role: 'مطور باك إند (فريلانس)',
+      company: 'رؤية للأثاث',
+      location: 'عن بُعد — السعودية',
+      period: '06/2026 – 07/2026',
+      details: 'باك إند متجر إلكتروني بـ ASP.NET Core وقواعد بيانات SQL Server، أكتر من ٥٣ إندبوينت شغالين لايف في الإنتاج؛ تسريع زمن الاستجابة بنسبة ٩٧٪ (من 12ms لـ 0.65ms) بتحسين الاستعلامات والـ AsNoTracking؛ صلاحيات وتوثيق JWT؛ ودورات دفع وطلبات داخل داتابيز ترانزاكشن.'
+    },
+    {
+      role: 'مهندس باك إند دوت نت',
+      company: 'Alaris Space',
+      location: 'عن بُعد',
+      period: '06/2026 – حتى الآن',
+      details: 'مشاركة في بناء منصتي Alaris Nexus وAlaris FlowX (مجموع أكتر من ١٢٦ إندبوينت)؛ تشخيص أداء ومراقبة بـ Serilog؛ توثيق كامل للـ APIs بـ Swagger / OpenAPI؛ كتابة اختبارات xUnit؛ وتعاون معماري مع فريق التأسيس المكون من ٣ مهندسين.'
+    }
+  ],
+  technicalSkills: [
+    {
+      category: 'لغات البرمجة والأساسيات البرمجية',
+      items: ['C#', 'SQL', 'البرمجة كائنية التوجه (OOP)', 'هياكل البيانات (Data Structures)', 'الخوارزميات (Algorithms)', 'البرمجة غير المتزامنة (Async/Await)']
+    },
+    {
+      category: 'تطوير الويب بـ ASP.NET Core',
+      items: ['ASP.NET Core', 'Web API', 'واجهات RESTful', 'EF Core', 'LINQ', 'حقن التبعيات (DI)', 'توثيق JWT', 'Refresh Tokens', 'إدارة الصلاحيات (RBAC)', 'تحديد معدل الطلبات (Rate Limiting)', 'FluentValidation', 'Mapster']
+    },
+    {
+      category: 'المعمارية البرمجية وتصميم النظم',
+      items: ['Clean Architecture', 'المعمارية متعددة الطبقات', 'Repository Pattern', 'Service Layer', 'مبادئ SOLID', 'تصميم الـ DTOs', 'أمان الـ APIs']
+    },
+    {
+      category: 'قواعد البيانات والتخزين المؤقت',
+      items: ['SQL Server', 'تصميم قواعد البيانات العلائقية', 'معاملات الداتابيز (Transactions)', 'تحسين أداء الاستعلامات', 'Redis']
+    },
+    {
+      category: 'الاختبارات والأدوات الهندسية',
+      items: ['xUnit', 'Swagger / OpenAPI', 'Postman', 'Git & GitHub', 'SignalR', 'Linux', 'Docker']
+    },
+    {
+      category: 'التسجيل واستخراج التقارير',
+      items: ['Serilog', 'QuestPDF (تقارير PDF)', 'ClosedXML (تقارير إكسيل)', 'بوابات الدفع الإلكتروني']
+    }
+  ],
+  education: {
+    institution: 'جامعة أسيوط الأهلية',
+    degree: 'بكالوريوس هندسة البرمجيات',
+    period: '09/2023 – 06/2027 (المتوقع)',
+    location: 'أسيوط، مصر'
+  },
+  training: [
+    {
+      program: 'أكاديمية Route',
+      track: 'مسار مطور باك إند ASP.NET',
+      period: '04/2026 – 10/2026'
+    },
+    {
+      program: 'مبادرة رواد مصر الرقمية (DEPI)',
+      track: 'مسار مهندس ديف أوبس (DevOps)',
+      period: '07/2026 – 01/2027'
+    }
+  ],
+  links: {
+    linkedIn: 'https://linkedin.com/in/mahmoud-sayed-mohamed',
+    gitHub: 'https://github.com/ixProf'
+  }
+};
+
 export const INITIAL_BLOG_POSTS: BlogPost[] = [
   {
     id: 1,

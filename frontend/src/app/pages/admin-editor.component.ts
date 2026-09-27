@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BlogService } from '../services/blog.service';
 import { NotesService } from '../services/notes.service';
 import { MarkdownService } from '../services/markdown.service';
+import { ImageUploadService } from '../services/image-upload.service';
 import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
 
 @Component({
@@ -200,12 +201,38 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
             <button type="button" class="tool-action-btn" (click)="insertLink()" title="Link">
               Link
             </button>
+            <button 
+              type="button" 
+              class="tool-action-btn" 
+              (click)="fileInputRef.click()" 
+              [disabled]="isUploadingImage()" 
+              title="Upload image from disk (or paste directly with Ctrl+V)"
+              id="btn-upload-image"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Image</span>
+            </button>
+            <input 
+              #fileInputRef 
+              type="file" 
+              accept="image/*" 
+              (change)="onFileSelected($event)" 
+              style="display: none;" 
+              id="image-file-input"
+            />
             <button type="button" class="tool-action-btn" (click)="insertDivider()" title="Divider">
               ― Divider
             </button>
             <button type="button" class="tool-action-btn" (click)="toggleViewMode()">
               <span>{{ viewMode() === 'split' ? 'Full Editor' : 'Side-by-Side Preview' }}</span>
             </button>
+
+            @if (isUploadingImage()) {
+              <div class="upload-inline-indicator" role="status" aria-live="polite">
+                <span class="upload-spinner"></span>
+                <span class="upload-status-text">{{ uploadStatusText() }}</span>
+              </div>
+            }
           </div>
 
           <!-- Editor Body (Write vs Side-by-Side Live Preview) -->
@@ -216,8 +243,12 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                 #textareaRef
                 formControlName="content" 
                 class="editor-textarea" 
-                placeholder="Write your note or blog post in Markdown here... Click 'Draw Diagram' above to embed Excalidraw diagrams directly!"
+                placeholder="Write your note or blog post in Markdown here... Paste images (Ctrl+V) directly or click 'Image' above to upload!"
                 id="markdown-editor-textarea"
+                dir="auto"
+                (paste)="onPaste($event)"
+                (drop)="onDrop($event)"
+                (dragover)="onDragOver($event)"
               ></textarea>
             </div>
 
@@ -227,7 +258,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                 <div class="preview-header">
                   <span class="preview-label">Live Obsidian Preview</span>
                 </div>
-                <div class="markdown-body" [innerHTML]="livePreview()"></div>
+                <div class="markdown-body" [innerHTML]="livePreview()" dir="auto"></div>
               </div>
             }
           </div>
@@ -384,6 +415,39 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
       background-color: var(--bg-card-hover);
       border-color: var(--interactive);
     }
+    .tool-action-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .upload-inline-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.7rem;
+      background-color: var(--bg-surface-tint);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      margin-left: auto;
+      animation: fadeIn 0.2s ease;
+    }
+    .upload-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--color-warm-peach);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .editor-workspace {
       display: grid;
       grid-template-columns: 1fr;
@@ -445,6 +509,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
 })
 export class AdminEditorComponent implements OnInit {
   @ViewChild('textareaRef') textareaRef!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('fileInputRef') fileInputRef!: ElementRef<HTMLInputElement>;
 
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
@@ -452,11 +517,14 @@ export class AdminEditorComponent implements OnInit {
   blogService = inject(BlogService);
   notesService = inject(NotesService);
   markdownService = inject(MarkdownService);
+  imageUploadService = inject(ImageUploadService);
 
   contentType = signal<'blog' | 'note'>('blog');
   isDrawingOpen = signal<boolean>(false);
   viewMode = signal<'write' | 'split'>('split');
   isSaving = signal<boolean>(false);
+  isUploadingImage = signal<boolean>(false);
+  uploadStatusText = signal<string>('');
   editId: number | null = null;
   selectedRelatedIds = signal<number[]>([]);
 
@@ -602,6 +670,126 @@ export class AdminEditorComponent implements OnInit {
     }
 
     this.isDrawingOpen.set(false);
+  }
+
+  onPaste(event: ClipboardEvent): void {
+    const items = event.clipboardData?.items;
+    if (!items || items.length === 0) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        event.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          const timestamp = new Date().toISOString().slice(0, 10);
+          const defaultAlt = `screenshot-${timestamp}`;
+          this.handleImageUpload(file, defaultAlt);
+        }
+        return;
+      }
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const defaultAlt = file.name.replace(/\.[^/.]+$/, '').trim() || 'uploaded-image';
+      this.handleImageUpload(file, defaultAlt);
+      input.value = ''; // Allow re-uploading the same file if needed
+    }
+  }
+
+  onDrop(event: DragEvent): void {
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        event.preventDefault();
+        const defaultAlt = file.name.replace(/\.[^/.]+$/, '').trim() || 'dropped-image';
+        this.handleImageUpload(file, defaultAlt);
+      }
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    if (event.dataTransfer && Array.from(event.dataTransfer.types).includes('Files')) {
+      event.preventDefault();
+    }
+  }
+
+  private handleImageUpload(file: File, defaultAlt: string): void {
+    const textarea = this.textareaRef?.nativeElement;
+    const currentContent = this.editorForm.get('content')?.value || '';
+
+    // Generate unique temporary token for this upload session
+    const placeholderToken = `![Uploading ${file.name || 'image'}...]()`;
+
+    let start = currentContent.length;
+    let end = currentContent.length;
+
+    if (textarea) {
+      start = textarea.selectionStart;
+      end = textarea.selectionEnd;
+    }
+
+    // Ensure clean line breaks before and after image
+    const prefix = (start > 0 && currentContent[start - 1] !== '\n') ? '\n\n' : '';
+    const suffix = (end < currentContent.length && currentContent[end] !== '\n') ? '\n\n' : '\n';
+    const insertionText = `${prefix}${placeholderToken}${suffix}`;
+
+    const contentWithPlaceholder = currentContent.substring(0, start) + insertionText + currentContent.substring(end);
+    this.editorForm.patchValue({ content: contentWithPlaceholder });
+
+    this.isUploadingImage.set(true);
+    this.uploadStatusText.set(`Compressing & uploading ${file.name || 'image'} to Supabase Storage...`);
+
+    this.imageUploadService.uploadImage(file).subscribe({
+      next: (res) => {
+        this.isUploadingImage.set(false);
+        this.uploadStatusText.set('');
+
+        const latestContent = this.editorForm.get('content')?.value || '';
+        const cleanAlt = defaultAlt.replace(/[[\]]/g, '');
+        const finalImageMarkdown = `![${cleanAlt}](${res.url})`;
+
+        let updatedContent = latestContent;
+        if (latestContent.includes(placeholderToken)) {
+          updatedContent = latestContent.replace(placeholderToken, finalImageMarkdown);
+        } else {
+          updatedContent = latestContent + `\n\n${finalImageMarkdown}\n`;
+        }
+
+        this.editorForm.patchValue({ content: updatedContent });
+
+        // Restore focus and position cursor right after the newly inserted image
+        setTimeout(() => {
+          if (textarea) {
+            textarea.focus();
+            const insertionPos = updatedContent.indexOf(finalImageMarkdown);
+            if (insertionPos !== -1) {
+              const afterPos = insertionPos + finalImageMarkdown.length;
+              textarea.setSelectionRange(afterPos, afterPos);
+            }
+          }
+        }, 50);
+      },
+      error: (err) => {
+        console.error('Image upload failed:', err);
+        this.isUploadingImage.set(false);
+        this.uploadStatusText.set('');
+
+        // Remove the temporary placeholder on error
+        const latestContent = this.editorForm.get('content')?.value || '';
+        if (latestContent.includes(insertionText)) {
+          this.editorForm.patchValue({ content: latestContent.replace(insertionText, '') });
+        } else if (latestContent.includes(placeholderToken)) {
+          this.editorForm.patchValue({ content: latestContent.replace(placeholderToken, '') });
+        }
+
+        alert('Image upload failed. Please verify connection and try again.');
+      }
+    });
   }
 
   onSave(): void {
