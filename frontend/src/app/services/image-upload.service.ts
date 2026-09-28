@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, from, switchMap, catchError, of, throwError } from 'rxjs';
@@ -16,7 +17,7 @@ export interface UploadResponse {
   providedIn: 'root'
 })
 export class ImageUploadService {
-  private readonly API_URL = 'http://localhost:5000/api/upload/image';
+  private readonly API_URL = environment.apiUrl + '/upload/image';
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private compressor = inject(ImageCompressorService);

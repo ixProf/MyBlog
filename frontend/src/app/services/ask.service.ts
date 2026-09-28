@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,9 +8,7 @@ import { Question, FeedStats, ProfileBio, QuestionSubmission } from '../models/m
   providedIn: 'root'
 })
 export class AskService {
-  private readonly BASE_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-    ? '/api' 
-    : 'http://localhost:5000/api';
+  private readonly BASE_URL = environment.apiUrl;
 
   // Cached feed state
   questions = signal<Question[]>([]);

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, tap, catchError } from 'rxjs';
@@ -9,7 +10,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class NotesService {
-  private readonly API_URL = 'http://localhost:5000/api/notes';
+  private readonly API_URL = environment.apiUrl + '/notes';
   private readonly STORAGE_KEY = 'callmeprof_academic_notes';
   private readonly SUBJECTS_STORAGE_KEY = 'callmeprof_subjects';
 

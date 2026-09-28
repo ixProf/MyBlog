@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap, catchError } from 'rxjs';
@@ -9,7 +10,7 @@ import { AuthState } from '../models/models';
 export class AuthService {
   private readonly TOKEN_KEY = 'callmeprof_jwt';
   private readonly USER_KEY = 'callmeprof_user';
-  private readonly API_URL = 'http://localhost:5000/api/auth';
+  private readonly API_URL = environment.apiUrl + '/auth';
 
   authState = signal<AuthState>({
     token: null,

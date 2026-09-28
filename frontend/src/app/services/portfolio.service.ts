@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PortfolioData } from '../models/models';
@@ -9,7 +10,7 @@ import { tap, catchError, of } from 'rxjs';
   providedIn: 'root'
 })
 export class PortfolioService {
-  private readonly API_URL = 'http://localhost:5000/api/portfolio';
+  private readonly API_URL = environment.apiUrl + '/portfolio';
   private translationService = inject(TranslationService);
   private rawPortfolio = signal<PortfolioData>(INITIAL_PORTFOLIO);
 
