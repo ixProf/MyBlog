@@ -5,69 +5,37 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-if (args.Contains("--probe-supabase"))
-{
-    var regions = new[] {
-        "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "me-central-1",
-        "us-east-1", "us-east-2", "us-west-1", "us-west-2",
-        "af-south-1", "ap-southeast-1", "ap-southeast-2", "ap-northeast-1", "ap-northeast-2", "ap-south-1", "ca-central-1", "sa-east-1"
-    };
-
-    foreach (var r in regions)
-    {
-        var host = $"aws-0-{r}.pooler.supabase.com";
-        var testConn = $"Host={host};Port=6543;Database=postgres;Username=postgres.idftairgyjnwhwwpcecc;Password=PROF_PASSWORD_442005;SSL Mode=Require;Trust Server Certificate=true;Timeout=4";
-        try
-        {
-            await using var conn = new Npgsql.NpgsqlConnection(testConn);
-            await conn.OpenAsync();
-            Console.WriteLine($"[FOUND REGION]: {r} -> {host}");
-            return;
-        }
-        catch (Exception ex)
-        {
-            if (!ex.Message.Contains("Tenant or user not found"))
-            {
-                Console.WriteLine($"[DEBUG {r}]: {ex.Message}");
-            }
-        }
-    }
-    Console.WriteLine("[NOT FOUND IN TESTED REGIONS]");
-    return;
-}
-
-if (args.Contains("--check-tables"))
-{
-    var connStr = "Host=ep-twilight-cherry-aesrsmsd-pooler.c-2.us-east-2.aws.neon.tech;Port=5432;Database=neondb;Username=neondb_owner;Password=npg_TQFjd7BP0gAG;SSL Mode=Require;Trust Server Certificate=true;ChannelBinding=Require";
-    await using var conn = new Npgsql.NpgsqlConnection(connStr);
-    await conn.OpenAsync();
-    await using var cmd = new Npgsql.NpgsqlCommand("SELECT table_name FROM information_schema.tables WHERE table_schema='public';", conn);
-    await using var reader = await cmd.ExecuteReaderAsync();
-    while (await reader.ReadAsync())
-    {
-        Console.WriteLine($"[EXISTING TABLE]: {reader.GetString(0)}");
-    }
-    return;
-}
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Database Context (Supabase Postgres)
+// ---------- Port (Render provides PORT) ----------
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+// ---------- Database (Supabase Postgres) ----------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
     ?? throw new InvalidOperationException("No database connection string configured.");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Add Dependency Injection
+// ---------- Dependency Injection ----------
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ISupabaseStorageService, SupabaseStorageService>();
 builder.Services.AddSingleton<AskAuthService>();
 builder.Services.AddSingleton<AskRateLimitService>();
 
-// Add JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "CallMeProfSuperSecretSecurityKey2026!LongEnoughForHmacSha256";
+// ---------- JWT ----------
+// In Production the key MUST come from configuration (Render env var: Jwt__Key).
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    if (builder.Environment.IsDevelopment())
+        jwtKey = "dev-only-key-change-me-dev-only-key-change-me-123456";
+    else
+        throw new InvalidOperationException("Jwt:Key is not configured.");
+}
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CallMeProf";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "CallMeProfApp";
 
@@ -95,13 +63,28 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Configure CORS for Angular Frontend
+// ---------- CORS ----------
+// Set FRONTEND_URL in Render, e.g. https://your-app.vercel.app
+// (multiple origins can be separated by commas)
+var allowedOrigins = new List<string>
+{
+    "http://localhost:4200",
+    "http://127.0.0.1:4200"
+};
+
+var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
+if (!string.IsNullOrWhiteSpace(frontendUrl))
+{
+    allowedOrigins.AddRange(
+        frontendUrl.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                   .Select(u => u.TrimEnd('/')));
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://127.0.0.1:4200", "http://localhost:5000", "https://localhost:5001")
-              .SetIsOriginAllowed(_ => true)
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -113,18 +96,23 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Apply pending migrations safely
+// ---------- Migrations & Seed ----------
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
     try
     {
         await context.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"[DB Note]: Database already populated or migration skipped: {ex.Message}");
+        // Logged as an error so it is visible in Render logs.
+        logger.LogError(ex, "Database migration failed.");
     }
+
     await DbInitializer.SeedAsync(context);
 }
 
@@ -133,6 +121,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// ---------- Static files ----------
+// NOTE: Render's filesystem is ephemeral. Files saved in wwwroot/uploads
+// are lost on every deploy/restart. Use Supabase Storage for real uploads.
 var uploadsDir = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
 Directory.CreateDirectory(uploadsDir);
 
@@ -142,6 +133,7 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsDir),
     RequestPath = "/uploads"
 });
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
