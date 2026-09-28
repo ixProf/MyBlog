@@ -22,7 +22,9 @@ public class TokenService : ITokenService
 
     public string GenerateToken(User user)
     {
-        var secret = _config["Jwt:Key"] ?? "CallMeProfSuperSecretSecurityKey2026!LongEnoughForHmacSha256";
+        var secret = _config["Jwt:Key"] 
+            ?? Environment.GetEnvironmentVariable("Jwt__Key") 
+            ?? throw new InvalidOperationException("Jwt:Key is not configured.");
         var issuer = _config["Jwt:Issuer"] ?? "CallMeProf";
         var audience = _config["Jwt:Audience"] ?? "CallMeProfApp";
 

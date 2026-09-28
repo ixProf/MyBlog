@@ -17,14 +17,14 @@ public class AskAuthService
     {
         return Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
             ?? _config["Admin:Password"]
-            ?? "Prof442005";
+            ?? throw new InvalidOperationException("ADMIN_PASSWORD is not configured.");
     }
 
     public string GetSessionSecret()
     {
         return Environment.GetEnvironmentVariable("SESSION_SECRET")
             ?? _config["Admin:SessionSecret"]
-            ?? "vault-mastermind-secret-key-salt-999";
+            ?? throw new InvalidOperationException("SESSION_SECRET is not configured.");
     }
 
     public string CreateSessionToken()

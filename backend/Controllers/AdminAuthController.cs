@@ -83,8 +83,8 @@ public class AdminAuthController : ControllerBase
             Response.Cookies.Append(AskAuthService.CookieName, token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = _env.IsProduction(),
-                SameSite = SameSiteMode.Lax,
+                Secure = true, // Required for SameSite=None in modern browsers
+                SameSite = SameSiteMode.None, // Supports cross-origin calls (Vercel frontend -> SnapDeploy API)
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
@@ -111,7 +111,10 @@ public class AdminAuthController : ControllerBase
     {
         Response.Cookies.Delete(AskAuthService.CookieName, new CookieOptions
         {
-            Path = "/"
+            Path = "/",
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None
         });
         return Ok(new { success = true, message = "Session closed" });
     }

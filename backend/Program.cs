@@ -2,20 +2,30 @@ using System.Text;
 using Backend.Data;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------- Port (Render provides PORT) ----------
+// ---------- Reverse Proxy & Forwarded Headers ----------
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// ---------- Port (Render / SnapDeploy provides PORT) ----------
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
-// ---------- Database (Supabase Postgres) ----------
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING")
-    ?? throw new InvalidOperationException("No database connection string configured.");
+// ---------- Startup Configuration Validation ----------
+var validatedConfig = StartupValidator.Validate(builder.Configuration);
+var connectionString = validatedConfig.ConnectionString;
+var jwtKey = validatedConfig.JwtKey;
 
+// ---------- Database (PostgreSQL) ----------
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -26,16 +36,19 @@ builder.Services.AddScoped<ISupabaseStorageService, SupabaseStorageService>();
 builder.Services.AddSingleton<AskAuthService>();
 builder.Services.AddSingleton<AskRateLimitService>();
 
-// ---------- JWT ----------
-// In Production the key MUST come from configuration (Render env var: Jwt__Key).
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrWhiteSpace(jwtKey))
-{
-    if (builder.Environment.IsDevelopment())
-        jwtKey = "dev-only-key-change-me-dev-only-key-change-me-123456";
-    else
-        throw new InvalidOperationException("Jwt:Key is not configured.");
-}
+/*
+ * ==============================================================================================
+ * AUTHENTICATION SCHEMES NOTE:
+ * The application operates two distinct authentication schemes:
+ * 1. JWT Bearer Authentication (TokenService):
+ *    - Used by the Obsidian Admin Editor (/editor) for creating/editing blog posts and academic notes.
+ *    - Validates Bearer token from the 'Authorization' header using 'Jwt:Key'.
+ * 2. HMAC-SHA256 Signed Cookie Authentication (AskAuthService):
+ *    - Used by the Ask Moderation Dashboard (/ask/login) for moderating visitor questions.
+ *    - Issues an HttpOnly, Secure, SameSite=None cookie ('prof_vault_token') validated with 'SESSION_SECRET'.
+ * ==============================================================================================
+ */
+
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CallMeProf";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "CallMeProfApp";
 
@@ -64,8 +77,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // ---------- CORS ----------
-// Set FRONTEND_URL in Render, e.g. https://your-app.vercel.app
-// (multiple origins can be separated by commas)
 var allowedOrigins = new List<string>
 {
     "http://localhost:4200",
@@ -84,7 +95,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins.ToArray())
+        policy.WithOrigins(allowedOrigins.Distinct().ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -95,6 +106,11 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
+
+// ---------- Public Health Endpoint (Zero DB overhead) ----------
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 // ---------- Migrations & Seed ----------
 using (var scope = app.Services.CreateScope())
@@ -109,7 +125,6 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        // Logged as an error so it is visible in Render logs.
         logger.LogError(ex, "Database migration failed.");
     }
 
@@ -121,19 +136,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// ---------- Static files ----------
-// NOTE: Render's filesystem is ephemeral. Files saved in wwwroot/uploads
-// are lost on every deploy/restart. Use Supabase Storage for real uploads.
-var uploadsDir = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
-Directory.CreateDirectory(uploadsDir);
-
-app.UseStaticFiles();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsDir),
-    RequestPath = "/uploads"
-});
-
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
@@ -142,3 +144,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { BlogService } from '../services/blog.service';
 import { NotesService } from '../services/notes.service';
 import { PortfolioService } from '../services/portfolio.service';
-import { QuestionsService } from '../services/questions.service';
 import { TranslationService } from '../services/translation.service';
 
 @Component({
@@ -425,6 +424,5 @@ export class HomeComponent {
   blogService = inject(BlogService);
   notesService = inject(NotesService);
   portfolioService = inject(PortfolioService);
-  questionsService = inject(QuestionsService);
   ts = inject(TranslationService);
 }

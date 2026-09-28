@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
-import { QuestionsService } from '../services/questions.service';
+import { AskService } from '../services/ask.service';
 import { TranslationService } from '../services/translation.service';
 
 @Component({
@@ -391,16 +391,29 @@ import { TranslationService } from '../services/translation.service';
     }
   `]
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
   themeService = inject(ThemeService);
-  questionsService = inject(QuestionsService);
+  askService = inject(AskService);
   translationService = inject(TranslationService);
 
   mobileMenuOpen = signal<boolean>(false);
 
+  ngOnInit(): void {
+    if (this.authService.isAdmin()) {
+      this.askService.getStats().subscribe({
+        next: (res) => {
+          if (res?.stats) {
+            this.askService.stats.set(res.stats);
+          }
+        },
+        error: () => {}
+      });
+    }
+  }
+
   pendingQuestionsCount(): number {
-    return this.questionsService.getPendingQuestions().length;
+    return this.authService.isAdmin() ? (this.askService.stats().total_pending ?? 0) : 0;
   }
 
   toggleMobileMenu(): void {

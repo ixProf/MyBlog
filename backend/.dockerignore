@@ -2,3 +2,9 @@ bin/
 obj/
 *.db
 .vs/
+appsettings.Production.json
+appsettings.*.local.json
+.env
+.env.*
+*.env
+!*.env.example

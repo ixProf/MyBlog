@@ -1,0 +1,40 @@
+# Build and compiled output
+bin/
+obj/
+dist/
+out-tsc/
+/tmp/
+
+# Node & package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Angular cache
+.angular/
+
+# Environment files and secrets
+.env
+.env.*
+*.env
+!*.env.example
+appsettings.Production.json
+appsettings.*.local.json
+*.local.json
+
+# User-specific and OS files
+*.user
+*.userprefs
+*.suo
+.DS_Store
+Thumbs.db
+
+# Uploads directory (ephemeral storage)
+wwwroot/uploads/
+backend/wwwroot/uploads/
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal

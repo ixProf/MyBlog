@@ -23,7 +23,6 @@ export const routes: Routes = [
   { path: 'ask/answers/:id', component: AnswerDetailComponent, title: 'Verified Answer — Ask Prof' },
   { path: 'answers/:id', redirectTo: 'ask/answers/:id' },
   { path: 'ask/login', component: AskAdminComponent, title: 'Admin Moderation — Ask Prof' },
-  { path: 'Prof442005', redirectTo: 'ask/login', pathMatch: 'full' },
 
   { path: 'portfolio', component: PortfolioComponent, title: 'Portfolio — Mahmoud Sayed Mohamed (Prof)' },
   { path: 'editor', component: AdminEditorComponent, canActivate: [authGuard], title: 'Obsidian Editor — Call Me Prof' },
