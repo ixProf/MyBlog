@@ -83,7 +83,7 @@ var allowedOrigins = new List<string>
     "http://127.0.0.1:4200"
 };
 
-var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
+var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? Environment.GetEnvironmentVariable("FRONTEND_URL");
 if (!string.IsNullOrWhiteSpace(frontendUrl))
 {
     allowedOrigins.AddRange(

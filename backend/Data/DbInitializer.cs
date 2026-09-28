@@ -125,11 +125,15 @@ public static class DbInitializer
         }
         catch { }
 
-        // 1. Keep Users admin account creation logic as-is (ensure admin account always exists)
-        if (!await context.Users.AnyAsync(u => u.Role == "Admin"))
+        // 1. Keep Users admin account creation logic as-is (ensure admin account always exists and password is in sync)
+        var defaultAdminPassword = Environment.GetEnvironmentVariable("ADMIN_EDITOR_PASSWORD")
+            ?? Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
+            ?? "Prof@2026!";
+
+        var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == "prof" || u.Role == "Admin");
+        if (adminUser == null)
         {
-            // Single Admin credentials: username = "prof", password = "Prof@2026!"
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword("Prof@2026!");
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(defaultAdminPassword);
             context.Users.Add(new User
             {
                 Username = "prof",
@@ -138,6 +142,14 @@ public static class DbInitializer
                 DisplayName = "Prof (Mahmoud Sayed Mohamed)"
             });
             await context.SaveChangesAsync();
+        }
+        else if (!string.IsNullOrWhiteSpace(defaultAdminPassword) && defaultAdminPassword != "Prof@2026!")
+        {
+            if (!BCrypt.Net.BCrypt.Verify(defaultAdminPassword, adminUser.PasswordHash))
+            {
+                adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(defaultAdminPassword);
+                await context.SaveChangesAsync();
+            }
         }
 
         // 2. Tracking mechanism: check if sample data has already been seeded once permanently

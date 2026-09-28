@@ -15,16 +15,32 @@ public class AskAuthService
 
     public string GetAdminPassword()
     {
-        return Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
+        var password = Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
+            ?? _config["ADMIN_PASSWORD"]
             ?? _config["Admin:Password"]
-            ?? throw new InvalidOperationException("ADMIN_PASSWORD is not configured.");
+            ?? _config["Admin__Password"];
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new InvalidOperationException("ADMIN_PASSWORD is not configured.");
+        }
+
+        return password;
     }
 
     public string GetSessionSecret()
     {
-        return Environment.GetEnvironmentVariable("SESSION_SECRET")
+        var secret = Environment.GetEnvironmentVariable("SESSION_SECRET")
+            ?? _config["SESSION_SECRET"]
             ?? _config["Admin:SessionSecret"]
-            ?? throw new InvalidOperationException("SESSION_SECRET is not configured.");
+            ?? _config["Admin__SessionSecret"];
+
+        if (string.IsNullOrWhiteSpace(secret))
+        {
+            throw new InvalidOperationException("SESSION_SECRET is not configured.");
+        }
+
+        return secret;
     }
 
     public string CreateSessionToken()
