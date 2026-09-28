@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { marked } from 'marked';
+import hljs from 'highlight.js';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TocItem } from '../models/models';
 
@@ -13,23 +14,65 @@ export class MarkdownService {
       breaks: true
     });
 
-    const renderer = new marked.Renderer();
-    renderer.heading = ({ text, depth }: { text: string; depth: number }) => {
-      const plainText = text.replace(/<[^>]*>/g, '').trim();
-      const slug = this.slugify(plainText);
-      return `<h${depth} id="${slug}" class="doc-heading doc-h${depth}" dir="auto">${text}</h${depth}>\n`;
-    };
-    renderer.paragraph = ({ text }: { text: string }) => {
-      return `<p dir="auto">${text}</p>\n`;
-    };
-    renderer.blockquote = ({ text }: { text: string }) => {
-      return `<blockquote dir="auto">${text}</blockquote>\n`;
-    };
-    renderer.listitem = ({ text }: { text: string }) => {
-      return `<li dir="auto">${text}</li>\n`;
+    const self = this;
+    const renderer = {
+      heading(this: any, token: any) {
+        const text = token.tokens ? this.parser.parseInline(token.tokens) : (token.text || '');
+        const plainText = (token.text || '').replace(/<[^>]*>/g, '').trim();
+        const slug = self.slugify(plainText);
+        return `<h${token.depth} id="${slug}" class="doc-heading doc-h${token.depth}" dir="auto">${text}</h${token.depth}>\n`;
+      },
+      paragraph(this: any, token: any) {
+        const text = token.tokens ? this.parser.parseInline(token.tokens) : (token.text || '');
+        return `<p dir="auto">${text}</p>\n`;
+      },
+      blockquote(this: any, token: any) {
+        const body = token.tokens ? this.parser.parse(token.tokens) : (token.text || '');
+        return `<blockquote dir="auto">\n${body}</blockquote>\n`;
+      },
+      listitem(this: any, token: any) {
+        const body = token.tokens ? this.parser.parse(token.tokens) : (token.text || '');
+        return `<li dir="auto">${body}</li>\n`;
+      },
+      code(this: any, token: any) {
+        const rawLang = (token.lang || '').trim().match(/^\S*/)?.[0] || '';
+        const lang = rawLang.toLowerCase();
+        let highlighted = '';
+        let validLang = false;
+
+        if (lang && hljs.getLanguage(lang)) {
+          try {
+            highlighted = hljs.highlight(token.text, { language: lang, ignoreIllegals: true }).value;
+            validLang = true;
+          } catch {
+            // fallback to auto
+          }
+        }
+
+        if (!validLang) {
+          try {
+            const autoResult = hljs.highlightAuto(token.text);
+            highlighted = autoResult.value || self.escapeHtml(token.text);
+          } catch {
+            highlighted = self.escapeHtml(token.text);
+          }
+        }
+
+        const langClass = rawLang ? ` language-${rawLang}` : '';
+        return `<pre dir="ltr" class="code-block" style="direction: ltr; text-align: left;"><code class="hljs${langClass}">${highlighted}</code></pre>\n`;
+      }
     };
 
     marked.use({ renderer });
+  }
+
+  escapeHtml(html: string): string {
+    return html
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   render(markdown: string): SafeHtml {

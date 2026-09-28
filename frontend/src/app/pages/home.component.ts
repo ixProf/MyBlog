@@ -23,7 +23,7 @@ import { TranslationService } from '../services/translation.service';
             </div>
             
             <h1 class="hero-title">
-              {{ ts.t('home.hero_title_pre') }} <span class="highlight-prof">{{ ts.t('home.hero_title_prof') }}</span>.
+              {{ ts.t('home.headline_before') }}<span class="highlight-prof">{{ ts.t('home.headline_highlight') }}</span>{{ ts.t('home.headline_after') }}
             </h1>
 
             <p class="hero-bio">

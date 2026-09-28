@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService } from '../services/blog.service';
 import { MarkdownService } from '../services/markdown.service';
 import { AuthService } from '../services/auth.service';
+import { TranslationService } from '../services/translation.service';
 import { BlogPost, TocItem } from '../models/models';
 import { TableOfContentsComponent } from '../components/table-of-contents.component';
 
@@ -16,9 +17,9 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
       <div class="container doc-container">
         <!-- Documentation Breadcrumb Trail -->
         <nav class="doc-breadcrumbs" aria-label="Breadcrumbs">
-          <a routerLink="/" class="breadcrumb-link">Home</a>
+          <a routerLink="/" class="breadcrumb-link">{{ ts.t('nav.home') }}</a>
           <span class="bc-sep">/</span>
-          <a routerLink="/blog" class="breadcrumb-link">Blog</a>
+          <a routerLink="/blog" class="breadcrumb-link">{{ ts.t('nav.blog') }}</a>
           @if (primaryCategory()) {
             <span class="bc-sep">/</span>
             <span class="bc-category">{{ primaryCategory() }}</span>
@@ -44,11 +45,11 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                   <span class="meta-separator">&bull;</span>
                   <time class="meta-date">{{ post()!.publishedAt | date:'mediumDate' }}</time>
                   <span class="meta-separator">&bull;</span>
-                  <span class="meta-read-time">{{ post()!.readTimeMinutes }} min read</span>
+                  <span class="meta-read-time">{{ post()!.readTimeMinutes }} {{ ts.t('blog.min_read') }}</span>
                   @if (authService.isAdmin()) {
                     <span class="meta-separator">&bull;</span>
                     <a [routerLink]="['/editor']" [queryParams]="{ editId: post()!.id, type: 'blog' }" class="edit-link">
-                      Edit Article
+                      {{ ts.t('blog.edit') }}
                     </a>
                   }
                 </div>
@@ -71,20 +72,20 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
               @if (relatedArticles().length > 0) {
                 <section class="related-articles-section">
                   <div class="related-section-header">
-                    <span class="related-label">Curated Suggestions</span>
-                    <h2 class="related-title">Related Articles</h2>
+                    <span class="related-label">{{ ts.t('blog.curated_label') }}</span>
+                    <h2 class="related-title">{{ ts.t('blog.related_title') }}</h2>
                   </div>
 
                   <div class="related-cards-grid">
                     @for (rel of relatedArticles(); track rel.id) {
                       <a [routerLink]="['/blog', rel.slug]" class="related-card card card-interactive">
                         <div class="related-meta">
-                          <span class="badge badge-peach">{{ rel.readTimeMinutes }} min read</span>
+                          <span class="badge badge-peach">{{ rel.readTimeMinutes }} {{ ts.t('blog.min_read') }}</span>
                           <time class="related-date">{{ rel.publishedAt | date:'mediumDate' }}</time>
                         </div>
                         <h3 class="related-card-title">{{ rel.title }}</h3>
                         <p class="related-card-excerpt">{{ rel.excerpt }}</p>
-                        <span class="related-read-more">Read write-up &rarr;</span>
+                        <span class="related-read-more">{{ ts.t('blog.read_article') }}</span>
                       </a>
                     }
                   </div>
@@ -98,13 +99,12 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                   <div class="author-text">
                     <h3 class="author-heading">Mahmoud Sayed Mohamed (Prof)</h3>
                     <p class="author-bio">
-                      Junior Backend .NET Developer & Software Engineering Student from Assiut, Egypt.
-                      Passionate about building production APIs on ASP.NET Core, database tuning, and distributed systems.
+                      {{ ts.t('footer.bio') }}
                     </p>
                     <div class="author-links">
                       <a href="https://linkedin.com/in/mahmoud-sayed-mohamed" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                       <a href="https://github.com/ixProf" target="_blank" rel="noopener noreferrer">GitHub</a>
-                      <a routerLink="/ask">Ask a Question</a>
+                      <a routerLink="/ask">{{ ts.t('nav.ask') }}</a>
                     </div>
                   </div>
                 </div>
@@ -118,9 +118,9 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
           </div>
         } @else {
           <div class="not-found card">
-            <h2>Article Not Found</h2>
-            <p>The requested write-up could not be located.</p>
-            <a routerLink="/blog" class="btn btn-primary">Return to Blog</a>
+            <h2>{{ ts.t('blog.not_found_title') }}</h2>
+            <p>{{ ts.t('blog.not_found_desc') }}</p>
+            <a routerLink="/blog" class="btn btn-primary">{{ ts.t('blog.back_to_blog') }}</a>
           </div>
         }
       </div>
@@ -402,6 +402,7 @@ export class BlogDetailComponent implements OnInit {
   private blogService = inject(BlogService);
   private markdownService = inject(MarkdownService);
   authService = inject(AuthService);
+  ts = inject(TranslationService);
 
   post = signal<BlogPost | null>(null);
   renderedContent = signal<any>('');

@@ -1,6 +1,7 @@
-import { Component, Input, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, Input, signal, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TocItem } from '../models/models';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-table-of-contents',
@@ -18,7 +19,7 @@ import { TocItem } from '../models/models';
         >
           <div class="toc-mobile-title">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            <span>On This Page</span>
+            <span>{{ ts.t('toc.on_this_page') }}</span>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron" [class.rotated]="isOpen()"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -27,7 +28,7 @@ import { TocItem } from '../models/models';
         <div class="toc-body" [class.is-open]="isOpen()">
           <div class="toc-desktop-header">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            <span class="toc-title">On This Page</span>
+            <span class="toc-title">{{ ts.t('toc.on_this_page') }}</span>
           </div>
 
           <nav class="toc-nav" aria-label="Table of contents">
@@ -191,6 +192,7 @@ import { TocItem } from '../models/models';
 export class TableOfContentsComponent implements OnInit, OnDestroy {
   @Input() items: TocItem[] = [];
 
+  ts = inject(TranslationService);
   activeId = signal<string>('');
   isOpen = signal<boolean>(false);
 

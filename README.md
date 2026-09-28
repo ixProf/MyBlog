@@ -1,6 +1,6 @@
 # Call Me Prof — Personal Website & Digital Workshop
 
-Personal website for **"Prof"** (**Mahmoud Sayed Mohamed**, Junior/Fresh Backend .NET Developer from Assiut, Egypt).
+Personal website for **"Prof"** (**Mahmoud Sayed Mohamed**, Junior/Fresh Backend .NET Developer from Egypt).
 
 A unified single-admin personal platform combining:
 1. **Home** — Hero introduction, key stats (200+ endpoints, 97% query latency reduction), and navigation portals across the 4 pillars.

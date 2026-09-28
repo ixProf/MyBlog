@@ -75,7 +75,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
                     <span>{{ ts.t('ask.replying_to') }} &ldquo;{{ replyToQuestion()?.question_text }}&rdquo;</span>
                   </div>
-                  <button type="button" (click)="clearReplyTo()" class="cancel-reply-btn" title="Cancel replying">
+                  <button type="button" (click)="clearReplyTo()" class="cancel-reply-btn" [title]="ts.t('ask.cancel_reply')">
                     {{ ts.t('ask.cancel_reply') }}
                   </button>
                 </div>
@@ -274,7 +274,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                         type="button"
                         class="card-action-btn share-btn"
                         (click)="onShareQuestion($event, q)"
-                        title="Copy direct link"
+                        [title]="ts.t('ask.copy_link')"
                       >
                         @if (copiedMap()[q.id]) {
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -292,7 +292,7 @@ import { Question, FeedStats, ProfileBio } from '../models/models';
                         (click)="$event.stopPropagation()"
                         class="read-answer-link"
                       >
-                        <span>{{ ts.currentLang() === 'ar' ? 'اقرأ الإجابة' : 'Read answer' }}</span>
+                        <span>{{ ts.t('ask.read_answer') }}</span>
                         <span class="arrow-glyph">{{ ts.currentLang() === 'ar' ? '←' : '→' }}</span>
                       </a>
                     }

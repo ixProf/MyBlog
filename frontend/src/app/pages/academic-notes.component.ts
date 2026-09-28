@@ -29,13 +29,13 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                 class="header-action-btn" 
                 [class.active]="showNewFolderForm()" 
                 (click)="showNewFolderForm.set(!showNewFolderForm())"
-                title="Create New Subject Folder"
+                [title]="ts.t('notes.create_folder_title')"
                 id="btn-create-folder"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
                 <span>{{ ts.t('notes.btn_add_folder') }}</span>
               </button>
-              <a [routerLink]="['/editor']" [queryParams]="{ type: 'note' }" class="header-action-btn" title="Add New Lecture Note" id="btn-add-note">
+              <a [routerLink]="['/editor']" [queryParams]="{ type: 'note' }" class="header-action-btn" [title]="ts.t('notes.add_note_title')" id="btn-add-note">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span>{{ ts.t('notes.btn_add_note') }}</span>
               </a>
@@ -147,7 +147,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                         type="button" 
                         class="folder-mini-tool delete" 
                         (click)="onDeleteSubject(group.subject, group.count)" 
-                        title="Delete folder and notes"
+                        [title]="ts.t('notes.delete_folder_title')"
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                       </button>
@@ -174,10 +174,10 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
                   }
                   @if (group.notes.length === 0) {
                     <li class="folder-empty-state">
-                      <span class="folder-empty-label">No notes yet</span>
+                      <span class="folder-empty-label">{{ ts.t('notes.no_notes_yet') }}</span>
                       @if (authService.isAdmin()) {
                         <a [routerLink]="['/editor']" [queryParams]="{ type: 'note', subject: group.subject }" class="folder-empty-add-btn">
-                          + Add Note
+                          {{ ts.t('notes.add_note_short') }}
                         </a>
                       }
                     </li>
@@ -188,7 +188,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
           }
           @if (groupedSubjects().length === 0) {
             <div class="sidebar-empty-state">
-              <span>No folders found.</span>
+              <span>{{ ts.t('notes.no_folders_found') }}</span>
             </div>
           }
         </nav>
@@ -199,7 +199,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
         <!-- Mobile Sidebar Toggle -->
         <button class="mobile-sidebar-toggle" (click)="sidebarMobileOpen.set(!sidebarMobileOpen())">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          <span>{{ sidebarMobileOpen() ? 'Hide Folders Tree' : 'View Course Folders' }}</span>
+          <span>{{ sidebarMobileOpen() ? ts.t('notes.hide_folders') : ts.t('notes.view_folders') }}</span>
         </button>
 
         @if (selectedNote()) {
@@ -914,7 +914,7 @@ export class AcademicNotesComponent implements OnInit {
   }
 
   onDeleteNote(id: number): void {
-    if (confirm('Delete this academic note?')) {
+    if (confirm(this.ts.t('notes.delete_note_confirm'))) {
       this.notesService.deleteNote(id).subscribe(() => {
         const remaining = this.notesService.notes();
         if (remaining.length > 0) {

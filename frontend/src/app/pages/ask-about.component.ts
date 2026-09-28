@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AskService } from '../services/ask.service';
+import { TranslationService } from '../services/translation.service';
 import { FeedStats, ProfileBio } from '../models/models';
 
 @Component({
@@ -15,51 +16,51 @@ import { FeedStats, ProfileBio } from '../models/models';
         <div class="back-nav-row">
           <a routerLink="/ask" class="back-link">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            <span>Back to Q&amp;A</span>
+            <span>{{ ts.t('ask.back_to_qa') }}</span>
           </a>
         </div>
 
         <!-- Header -->
         <header class="about-hero">
           <h1 class="hero-title">
-            About Prof<span class="brand-accent">.</span>
+            {{ ts.t('ask.about_title') }}<span class="brand-accent">.</span>
           </h1>
           <p class="hero-subtitle">
-            {{ profile().name_en || 'Mahmoud Sayed Mohamed' }}
+            {{ (ts.currentLang() === 'ar' ? profile().name_ar : profile().name_en) || 'Mahmoud Sayed Mohamed' }}
             <span class="accent-dot">•</span>
-            Backend Developer
+            {{ ts.t('ask.hero_sub') }}
           </p>
         </header>
 
         <!-- Main Bio Card -->
         <section class="bio-card card">
-          <h2 class="section-heading">Background &amp; Focus</h2>
+          <h2 class="section-heading">{{ ts.t('ask.about_bg_heading') }}</h2>
           <p class="bio-text">
-            {{ profile().bio_en || "I'm Mahmoud, but most people call me Prof. I'm a software developer who likes building things, trying new ideas, and figuring stuff out along the way. If you have a question, opinion, criticism, advice, or just something you want to say — go ahead. I'm listening." }}
+            {{ (ts.currentLang() === 'ar' ? profile().bio_ar : profile().bio_en) || ts.t('footer.bio') }}
           </p>
 
-          <h2 class="section-heading" style="margin-top: 2rem;">About this Terminal</h2>
+          <h2 class="section-heading" style="margin-top: 2rem;">{{ ts.t('ask.about_terminal_heading') }}</h2>
           <p class="bio-text">
-            This platform is an open, anonymous Q&amp;A space. You can ask technical questions about backend engineering, system architecture, database optimization, career trajectory, or anything on your mind. Questions are received anonymously, answered directly, and published to the public archive.
+            {{ ts.t('ask.about_terminal_desc') }}
           </p>
 
           <!-- Live Stats Row (computed from Questions table) -->
           <div class="stats-pill-row">
             <div class="stat-pill-item">
               <strong class="stat-number">{{ stats().total_answered }}</strong>
-              <span class="stat-label">Answers Published</span>
+              <span class="stat-label">{{ ts.t('ask.answers_published') }}</span>
             </div>
             <span class="accent-dot">•</span>
             <div class="stat-pill-item">
               <strong class="stat-number">{{ stats().total_likes }}</strong>
-              <span class="stat-label">Community Likes</span>
+              <span class="stat-label">{{ ts.t('ask.community_likes') }}</span>
             </div>
           </div>
         </section>
 
         <!-- Verified Profiles Links Grid -->
         <section class="profiles-section">
-          <h3 class="profiles-heading">Verified Profiles</h3>
+          <h3 class="profiles-heading">{{ ts.t('ask.verified_profiles') }}</h3>
           <div class="profiles-grid">
             <a
               [href]="profile().linkedin || 'https://www.linkedin.com/in/mahmoud-sayed-mohamed'"
@@ -111,7 +112,7 @@ import { FeedStats, ProfileBio } from '../models/models';
         <!-- CTA Bottom -->
         <div class="cta-bottom">
           <a routerLink="/ask" fragment="ask-section" class="btn btn-primary cta-btn">
-            Ask a Question
+            {{ ts.t('ask.ask_question_btn') }}
           </a>
         </div>
       </div>
@@ -284,6 +285,7 @@ import { FeedStats, ProfileBio } from '../models/models';
 })
 export class AskAboutComponent implements OnInit {
   private askService = inject(AskService);
+  ts = inject(TranslationService);
 
   stats = signal<FeedStats>({ total_answered: 0, total_likes: 0 });
   profile = signal<ProfileBio>({

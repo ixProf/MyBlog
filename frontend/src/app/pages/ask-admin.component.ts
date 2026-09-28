@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AskService } from '../services/ask.service';
 import { ThemeService } from '../services/theme.service';
+import { TranslationService } from '../services/translation.service';
 import { Question } from '../models/models';
 
 @Component({
@@ -33,7 +34,7 @@ import { Question } from '../models/models';
                   Ask Prof<span class="brand-accent">.</span> Admin
                 </h1>
                 <p class="login-subtitle">
-                  Enter master password to access the moderation inbox.
+                  {{ ts.t('ask_admin.login_sub') }}
                 </p>
               </div>
 
@@ -45,12 +46,12 @@ import { Question } from '../models/models';
 
               <form (ngSubmit)="handleLogin()" class="login-form">
                 <div class="form-group">
-                  <label for="admin-password">Password</label>
+                  <label for="admin-password">{{ ts.t('ask_admin.password') }}</label>
                   <input
                     id="admin-password"
                     type="password"
                     class="input-password"
-                    placeholder="Enter password..."
+                    [placeholder]="ts.t('ask_admin.password_placeholder')"
                     [(ngModel)]="passwordInput"
                     name="password"
                     autocomplete="current-password"
@@ -63,14 +64,14 @@ import { Question } from '../models/models';
                   class="btn btn-primary login-btn"
                   [disabled]="isLoggingIn() || !passwordInput.trim()"
                 >
-                  <span>{{ isLoggingIn() ? 'Verifying...' : 'Access Dashboard' }}</span>
+                  <span>{{ isLoggingIn() ? ts.t('ask_admin.verifying') : ts.t('ask_admin.access_dashboard') }}</span>
                 </button>
               </form>
 
               <div class="login-footer">
                 <a routerLink="/ask" class="return-link">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                  <span>Return to Public Q&amp;A</span>
+                  <span>{{ ts.t('ask_admin.return_to_qa') }}</span>
                 </a>
               </div>
             </div>
@@ -80,7 +81,7 @@ import { Question } from '../models/models';
         <!-- 2. Loading Auth State -->
         @if (isAuthenticated() === null) {
           <div class="card loading-card">
-            <p>Checking authentication...</p>
+            <p>{{ ts.t('ask_admin.checking_auth') }}</p>
           </div>
         }
 
@@ -93,7 +94,7 @@ import { Question } from '../models/models';
                 <h1 class="admin-wordmark">
                   Ask Prof<span class="brand-accent">.</span>
                 </h1>
-                <span class="admin-badge">Admin</span>
+                <span class="admin-badge">{{ ts.t('ask_admin.badge') }}</span>
               </div>
 
               <div class="top-actions">
@@ -112,14 +113,14 @@ import { Question } from '../models/models';
                   }
                 </button>
 
-                <a routerLink="/ask" class="action-btn back-btn" title="Back to Q&A">
+                <a routerLink="/ask" class="action-btn back-btn" [title]="ts.t('ask_admin.qa_feed')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                  <span>Q&amp;A Feed</span>
+                  <span>{{ ts.t('ask_admin.qa_feed') }}</span>
                 </a>
 
                 <button type="button" (click)="handleLogout()" class="action-btn logout-btn">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                  <span>Log Out</span>
+                  <span>{{ ts.t('ask_admin.logout') }}</span>
                 </button>
               </div>
             </div>
@@ -134,7 +135,7 @@ import { Question } from '../models/models';
                   [class.active]="activeTab() === 'pending'"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-                  <span>Pending</span>
+                  <span>{{ ts.t('ask_admin.tab_pending') }}</span>
                   <span class="count-badge">{{ pendingQuestions().length }}</span>
                 </button>
 
@@ -145,7 +146,7 @@ import { Question } from '../models/models';
                   [class.active]="activeTab() === 'answered'"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                  <span>Answered</span>
+                  <span>{{ ts.t('ask_admin.tab_answered') }}</span>
                   <span class="count-badge">{{ answeredQuestions().length }}</span>
                 </button>
               </div>
@@ -156,8 +157,8 @@ import { Question } from '../models/models';
               <div class="questions-deck">
                 @if (pendingQuestions().length === 0) {
                   <div class="card empty-deck">
-                    <h3>All caught up!</h3>
-                    <p>There are no pending questions waiting for your response.</p>
+                    <h3>{{ ts.t('ask_admin.caught_up_title') }}</h3>
+                    <p>{{ ts.t('ask_admin.caught_up_desc') }}</p>
                   </div>
                 } @else {
                   @for (q of pendingQuestions(); track q.id) {
@@ -173,7 +174,7 @@ import { Question } from '../models/models';
 
                       @if (q.parent_id && q.parent_question_text) {
                         <div class="follow-up-pill">
-                          <span>Follow-up to &ldquo;{{ q.parent_question_text }}&rdquo;</span>
+                          <span>{{ ts.t('ask.follow_up_to') }} &ldquo;{{ q.parent_question_text }}&rdquo;</span>
                         </div>
                       }
 
@@ -185,7 +186,7 @@ import { Question } from '../models/models';
                       <div class="composer-wrap">
                         <textarea
                           class="admin-textarea"
-                          placeholder="Write your answer to publish publicly..."
+                          [placeholder]="ts.t('ask_admin.write_answer_placeholder')"
                           rows="4"
                           [ngModel]="draftAnswers()[q.id] || ''"
                           (ngModelChange)="onDraftChange(q.id, $event)"
@@ -200,7 +201,7 @@ import { Question } from '../models/models';
                           class="btn-delete"
                         >
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                          <span>{{ isDeletingId() === q.id ? 'Dismissing...' : 'Dismiss' }}</span>
+                          <span>{{ isDeletingId() === q.id ? ts.t('ask_admin.dismissing') : ts.t('ask_admin.dismiss') }}</span>
                         </button>
 
                         <button
@@ -210,7 +211,7 @@ import { Question } from '../models/models';
                           class="btn btn-primary btn-sm"
                         >
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                          <span>{{ isPublishingId() === q.id ? 'Publishing...' : 'Publish Answer' }}</span>
+                          <span>{{ isPublishingId() === q.id ? ts.t('ask_admin.publishing') : ts.t('ask_admin.publish_answer') }}</span>
                         </button>
                       </div>
                     </article>
@@ -224,8 +225,8 @@ import { Question } from '../models/models';
               <div class="questions-deck">
                 @if (answeredQuestions().length === 0) {
                   <div class="card empty-deck">
-                    <h3>No answered questions yet</h3>
-                    <p>Answer questions from the Pending tab to publish them here.</p>
+                    <h3>{{ ts.t('ask_admin.no_answered_title') }}</h3>
+                    <p>{{ ts.t('ask_admin.no_answered_desc') }}</p>
                   </div>
                 } @else {
                   @for (q of answeredQuestions(); track q.id) {
@@ -246,7 +247,7 @@ import { Question } from '../models/models';
 
                       @if (q.parent_id && q.parent_question_text) {
                         <div class="follow-up-pill">
-                          <span>Follow-up to &ldquo;{{ q.parent_question_text }}&rdquo;</span>
+                          <span>{{ ts.t('ask.follow_up_to') }} &ldquo;{{ q.parent_question_text }}&rdquo;</span>
                         </div>
                       }
 
@@ -272,7 +273,7 @@ import { Question } from '../models/models';
                           class="btn-delete"
                         >
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                          <span>{{ isDeletingId() === q.id ? 'Deleting...' : 'Delete' }}</span>
+                          <span>{{ isDeletingId() === q.id ? ts.t('ask_admin.deleting') : ts.t('ask_admin.delete') }}</span>
                         </button>
 
                         <button
@@ -281,7 +282,7 @@ import { Question } from '../models/models';
                           [disabled]="isPublishingId() === q.id"
                           class="btn btn-primary btn-sm"
                         >
-                          <span>{{ isPublishingId() === q.id ? 'Saving...' : 'Save Changes' }}</span>
+                          <span>{{ isPublishingId() === q.id ? ts.t('ask_admin.saving') : ts.t('ask_admin.save_changes') }}</span>
                         </button>
                       </div>
                     </article>
@@ -693,6 +694,7 @@ import { Question } from '../models/models';
 export class AskAdminComponent implements OnInit {
   private askService = inject(AskService);
   themeService = inject(ThemeService);
+  ts = inject(TranslationService);
   private router = inject(Router);
 
   isAuthenticated = signal<boolean | null>(null);
@@ -820,7 +822,7 @@ export class AskAdminComponent implements OnInit {
   }
 
   handleDelete(id: string): void {
-    if (!confirm('Are you sure you want to delete this question? This cannot be undone.')) {
+    if (!confirm(this.ts.t('ask_admin.delete_confirm'))) {
       return;
     }
 

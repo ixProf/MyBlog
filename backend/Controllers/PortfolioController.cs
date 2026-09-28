@@ -14,7 +14,7 @@ public class PortfolioController : ControllerBase
             Name = "Mahmoud Sayed Mohamed",
             Alias = "Prof",
             Title = "Junior / Fresh Backend .NET Developer",
-            Location = "Assiut, Egypt",
+            Location = "Egypt",
             Summary = "Fresh Backend .NET Developer who builds production API systems on ASP.NET Core, from data model to deployment. Delivered 200+ endpoints across freelance and product engagements, cutting response time by 97% on one production system through async query tuning. Comfortable owning a backend end-to-end: authentication, database transactions, testing, and reporting, across booking, e-commerce, POS, financial, and academic platforms.",
             
             Metrics = new[]
@@ -93,7 +93,7 @@ public class PortfolioController : ControllerBase
                 Institution = "Assiut National University",
                 Degree = "Bachelor of Software Engineering",
                 Period = "09/2023 – 06/2027 (Expected)",
-                Location = "Assiut, Egypt"
+                Location = "Egypt"
             },
 
             Training = new[]

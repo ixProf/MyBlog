@@ -1,5 +1,6 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, Output, EventEmitter, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslationService } from '../services/translation.service';
 
 type ToolType = 'pen' | 'line' | 'arrow' | 'rect' | 'circle' | 'text' | 'eraser';
 
@@ -13,44 +14,44 @@ type ToolType = 'pen' | 'line' | 'arrow' | 'rect' | 'circle' | 'text' | 'eraser'
       <div class="canvas-header">
         <div class="canvas-title-group">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-          <span class="canvas-title">Excalidraw-Style Diagram Canvas</span>
-          <span class="badge badge-peach">Architecture & Note Sketcher</span>
+          <span class="canvas-title">{{ ts.t('drawing.title') }}</span>
+          <span class="badge badge-peach">{{ ts.t('drawing.badge') }}</span>
         </div>
         <div class="header-actions">
-          <button type="button" class="btn btn-sm btn-secondary" (click)="undo()" [disabled]="historyIndex <= 0" title="Undo">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="undo()" [disabled]="historyIndex <= 0" [title]="ts.t('drawing.undo')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
           </button>
-          <button type="button" class="btn btn-sm btn-secondary" (click)="clearCanvas()" title="Clear canvas">Clear</button>
-          <button type="button" class="btn btn-sm btn-primary" (click)="insertIntoMarkdown()" title="Insert into Markdown Editor">
+          <button type="button" class="btn btn-sm btn-secondary" (click)="clearCanvas()" [title]="ts.t('drawing.clear')">{{ ts.t('drawing.clear') }}</button>
+          <button type="button" class="btn btn-sm btn-primary" (click)="insertIntoMarkdown()" [title]="ts.t('drawing.insert_note')">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            <span>Insert Inline into Note</span>
+            <span>{{ ts.t('drawing.insert_note') }}</span>
           </button>
-          <button type="button" class="close-canvas-btn" (click)="close.emit()" title="Close Canvas">✕</button>
+          <button type="button" class="close-canvas-btn" (click)="close.emit()" [title]="ts.t('drawing.close')">✕</button>
         </div>
       </div>
 
       <!-- Controls Row: Tools, Strokes, Colors -->
       <div class="canvas-controls">
         <div class="tools-group">
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'pen'" (click)="setTool('pen')" title="Freehand Pen">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'pen'" (click)="setTool('pen')" [title]="ts.t('drawing.tool_pen')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
           </button>
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'rect'" (click)="setTool('rect')" title="Rectangle / Box">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'rect'" (click)="setTool('rect')" [title]="ts.t('drawing.tool_rect')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
           </button>
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'circle'" (click)="setTool('circle')" title="Circle / Ellipse">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'circle'" (click)="setTool('circle')" [title]="ts.t('drawing.tool_circle')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
           </button>
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'arrow'" (click)="setTool('arrow')" title="Arrow">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'arrow'" (click)="setTool('arrow')" [title]="ts.t('drawing.tool_arrow')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'line'" (click)="setTool('line')" title="Line">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'line'" (click)="setTool('line')" [title]="ts.t('drawing.tool_line')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/></svg>
           </button>
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'text'" (click)="setTool('text')" title="Text Label">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'text'" (click)="setTool('text')" [title]="ts.t('drawing.tool_text')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
           </button>
-          <button type="button" class="tool-btn" [class.active]="selectedTool === 'eraser'" (click)="setTool('eraser')" title="Eraser">
+          <button type="button" class="tool-btn" [class.active]="selectedTool === 'eraser'" (click)="setTool('eraser')" [title]="ts.t('drawing.tool_eraser')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L20 20Z"/><line x1="18" y1="14" x2="7" y2="14"/></svg>
           </button>
         </div>
@@ -75,13 +76,13 @@ type ToolType = 'pen' | 'line' | 'arrow' | 'rect' | 'circle' | 'text' | 'eraser'
 
         <!-- Stroke Width -->
         <div class="stroke-group">
-          <button type="button" class="stroke-btn" [class.active]="lineWidth === 2" (click)="lineWidth = 2" title="Thin">
+          <button type="button" class="stroke-btn" [class.active]="lineWidth === 2" (click)="lineWidth = 2" [title]="ts.t('drawing.stroke_thin')">
             <span class="stroke-line" style="height: 2px;"></span>
           </button>
-          <button type="button" class="stroke-btn" [class.active]="lineWidth === 4" (click)="lineWidth = 4" title="Medium">
+          <button type="button" class="stroke-btn" [class.active]="lineWidth === 4" (click)="lineWidth = 4" [title]="ts.t('drawing.stroke_medium')">
             <span class="stroke-line" style="height: 4px;"></span>
           </button>
-          <button type="button" class="stroke-btn" [class.active]="lineWidth === 7" (click)="lineWidth = 7" title="Thick">
+          <button type="button" class="stroke-btn" [class.active]="lineWidth === 7" (click)="lineWidth = 7" [title]="ts.t('drawing.stroke_thick')">
             <span class="stroke-line" style="height: 7px;"></span>
           </button>
         </div>
@@ -267,6 +268,8 @@ export class DrawingCanvasComponent implements AfterViewInit {
 
   @Output() insertSnippet = new EventEmitter<string>();
   @Output() close = new EventEmitter<void>();
+
+  ts = inject(TranslationService);
 
   selectedTool: ToolType = 'pen';
   strokeColor = '#2E2A26';

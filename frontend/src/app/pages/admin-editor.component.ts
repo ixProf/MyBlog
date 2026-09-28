@@ -6,6 +6,7 @@ import { BlogService } from '../services/blog.service';
 import { NotesService } from '../services/notes.service';
 import { MarkdownService } from '../services/markdown.service';
 import { ImageUploadService } from '../services/image-upload.service';
+import { TranslationService } from '../services/translation.service';
 import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
 
 @Component({
@@ -18,8 +19,8 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
         <!-- Top Toolbar Header -->
         <header class="editor-header">
           <div class="header-left">
-            <span class="badge badge-peach">Admin Workspace</span>
-            <h1 class="editor-title">Distraction-Free Obsidian Editor</h1>
+            <span class="badge badge-peach">{{ ts.t('editor.workspace_badge') }}</span>
+            <h1 class="editor-title">{{ ts.t('editor.title') }}</h1>
           </div>
 
           <div class="header-right">
@@ -31,7 +32,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                 [class.active]="contentType() === 'blog'" 
                 (click)="switchType('blog')"
               >
-                Blog Post
+                {{ ts.t('editor.mode_blog') }}
               </button>
               <button 
                 type="button" 
@@ -39,7 +40,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                 [class.active]="contentType() === 'note'" 
                 (click)="switchType('note')"
               >
-                Academic Note
+                {{ ts.t('editor.mode_note') }}
               </button>
             </div>
 
@@ -49,11 +50,11 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
               class="btn btn-secondary btn-sm drawing-toggle-btn"
               [class.active]="isDrawingOpen()"
               (click)="isDrawingOpen.set(!isDrawingOpen())"
-              title="Open Excalidraw-style canvas to sketch architecture diagrams"
+              [title]="ts.t('editor.canvas_btn_title')"
               id="btn-toggle-drawing"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-              <span>{{ isDrawingOpen() ? 'Hide Drawing Canvas' : 'Draw Diagram (Excalidraw)' }}</span>
+              <span>{{ isDrawingOpen() ? ts.t('editor.hide_canvas') : ts.t('editor.draw_diagram') }}</span>
             </button>
 
             <!-- Save / Publish -->
@@ -65,9 +66,9 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
               id="save-publish-btn"
             >
               @if (isSaving()) {
-                <span>Saving...</span>
+                <span>{{ ts.t('editor.saving') }}</span>
               } @else {
-                <span>{{ editId ? 'Update & Save' : 'Publish ' + (contentType() === 'blog' ? 'Article' : 'Note') }}</span>
+                <span>{{ editId ? ts.t('editor.update_save') : (contentType() === 'blog' ? ts.t('editor.publish_article') : ts.t('editor.publish_note')) }}</span>
               }
             </button>
           </div>
@@ -89,13 +90,13 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
           <div class="metadata-grid card">
             @if (contentType() === 'note') {
               <div class="form-group">
-                <label for="note-subject">Subject / Course Name <span class="req">*</span></label>
+                <label for="note-subject">{{ ts.t('editor.subject_label') }} <span class="req">*</span></label>
                 <input 
                   id="note-subject" 
                   type="text" 
                   formControlName="subject" 
                   class="input" 
-                  placeholder="e.g. Operating Systems, Database Internals, Distributed Systems"
+                  [placeholder]="ts.t('editor.subject_placeholder')"
                   list="subjects-list"
                 />
                 <datalist id="subjects-list">
@@ -107,43 +108,43 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
             }
 
             <div class="form-group title-field">
-              <label for="post-title">Title <span class="req">*</span></label>
+              <label for="post-title">{{ ts.t('editor.title_label') }} <span class="req">*</span></label>
               <input 
                 id="post-title" 
                 type="text" 
                 formControlName="title" 
                 class="input" 
-                placeholder="Give your writing a clear, meaningful title..."
+                [placeholder]="ts.t('editor.title_placeholder')"
               />
             </div>
 
             @if (contentType() === 'blog') {
               <div class="form-group excerpt-field">
-                <label for="post-excerpt">Excerpt / Summary</label>
+                <label for="post-excerpt">{{ ts.t('editor.excerpt_label') }}</label>
                 <input 
                   id="post-excerpt" 
                   type="text" 
                   formControlName="excerpt" 
                   class="input" 
-                  placeholder="Brief synopsis for card feed..."
+                  [placeholder]="ts.t('editor.excerpt_placeholder')"
                 />
               </div>
 
               <div class="form-group">
-                <label for="post-tags">Tags (Comma-separated)</label>
+                <label for="post-tags">{{ ts.t('editor.tags_label') }}</label>
                 <input 
                   id="post-tags" 
                   type="text" 
                   formControlName="tags" 
                   class="input" 
-                  placeholder="e.g. ASP.NET Core, SQL Server, Performance, Clean Architecture"
+                  [placeholder]="ts.t('editor.tags_placeholder')"
                 />
               </div>
 
               <!-- Curated Related Articles Picker (Manual Curation) -->
               <div class="form-group related-curation-field">
-                <label>Curate Related Articles (Manual Selection)</label>
-                <span class="field-hint">Pick which articles appear in the "Related Articles" section at the bottom of this post:</span>
+                <label>{{ ts.t('editor.related_label') }}</label>
+                <span class="field-hint">{{ ts.t('editor.related_hint') }}</span>
                 <div class="related-picker-grid">
                   @for (otherPost of availableOtherPosts(); track otherPost.id) {
                     <button 
@@ -157,13 +158,13 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                     </button>
                   }
                   @if (availableOtherPosts().length === 0) {
-                    <span class="no-others-hint">No other articles available to link yet.</span>
+                    <span class="no-others-hint">{{ ts.t('editor.no_related_hint') }}</span>
                   }
                 </div>
               </div>
             } @else {
               <div class="form-group order-field">
-                <label for="note-order">Sort Order Index</label>
+                <label for="note-order">{{ ts.t('editor.order_label') }}</label>
                 <input 
                   id="note-order" 
                   type="number" 
@@ -177,40 +178,40 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
 
           <!-- Markdown Formatting Ribbon -->
           <div class="markdown-toolbar">
-            <button type="button" class="tool-action-btn" (click)="insertBold()" title="Bold">
+            <button type="button" class="tool-action-btn" (click)="insertBold()" [title]="ts.t('editor.toolbar_bold')">
               <strong>B</strong>
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertItalic()" title="Italic">
+            <button type="button" class="tool-action-btn" (click)="insertItalic()" [title]="ts.t('editor.toolbar_italic')">
               <em>I</em>
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertHeading(2)" title="Heading 2">
+            <button type="button" class="tool-action-btn" (click)="insertHeading(2)" [title]="ts.t('editor.toolbar_h2')">
               H2
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertHeading(3)" title="Heading 3">
+            <button type="button" class="tool-action-btn" (click)="insertHeading(3)" [title]="ts.t('editor.toolbar_h3')">
               H3
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertBlockquote()" title="Blockquote">
-              ” Quote
+            <button type="button" class="tool-action-btn" (click)="insertBlockquote()" [title]="ts.t('editor.toolbar_quote')">
+              {{ ts.t('editor.toolbar_quote_label') }}
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertCodeBlock()" title="Code Block">
-              &lt;/&gt; Code
+            <button type="button" class="tool-action-btn" (click)="insertCodeBlock()" [title]="ts.t('editor.toolbar_code')">
+              {{ ts.t('editor.toolbar_code_label') }}
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertTable()" title="Table">
-              Table
+            <button type="button" class="tool-action-btn" (click)="insertTable()" [title]="ts.t('editor.toolbar_table')">
+              {{ ts.t('editor.toolbar_table') }}
             </button>
-            <button type="button" class="tool-action-btn" (click)="insertLink()" title="Link">
-              Link
+            <button type="button" class="tool-action-btn" (click)="insertLink()" [title]="ts.t('editor.toolbar_link')">
+              {{ ts.t('editor.toolbar_link') }}
             </button>
             <button 
               type="button" 
               class="tool-action-btn" 
               (click)="fileInputRef.click()" 
               [disabled]="isUploadingImage()" 
-              title="Upload image from disk (or paste directly with Ctrl+V)"
+              [title]="ts.t('editor.toolbar_image_title')"
               id="btn-upload-image"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <span>Image</span>
+              <span>{{ ts.t('editor.toolbar_image') }}</span>
             </button>
             <input 
               #fileInputRef 
@@ -220,11 +221,11 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
               style="display: none;" 
               id="image-file-input"
             />
-            <button type="button" class="tool-action-btn" (click)="insertDivider()" title="Divider">
-              ― Divider
+            <button type="button" class="tool-action-btn" (click)="insertDivider()" [title]="ts.t('editor.toolbar_divider')">
+              {{ ts.t('editor.toolbar_divider_label') }}
             </button>
             <button type="button" class="tool-action-btn" (click)="toggleViewMode()">
-              <span>{{ viewMode() === 'split' ? 'Full Editor' : 'Side-by-Side Preview' }}</span>
+              <span>{{ viewMode() === 'split' ? ts.t('editor.view_full') : ts.t('editor.view_split') }}</span>
             </button>
 
             @if (isUploadingImage()) {
@@ -243,7 +244,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                 #textareaRef
                 formControlName="content" 
                 class="editor-textarea" 
-                placeholder="Write your note or blog post in Markdown here... Paste images (Ctrl+V) directly or click 'Image' above to upload!"
+                [placeholder]="ts.t('editor.textarea_placeholder')"
                 id="markdown-editor-textarea"
                 dir="auto"
                 (paste)="onPaste($event)"
@@ -256,7 +257,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
             @if (viewMode() === 'split') {
               <div class="preview-pane card">
                 <div class="preview-header">
-                  <span class="preview-label">Live Obsidian Preview</span>
+                  <span class="preview-label">{{ ts.t('editor.live_preview') }}</span>
                 </div>
                 <div class="markdown-body" [innerHTML]="livePreview()" dir="auto"></div>
               </div>
@@ -518,6 +519,7 @@ export class AdminEditorComponent implements OnInit {
   notesService = inject(NotesService);
   markdownService = inject(MarkdownService);
   imageUploadService = inject(ImageUploadService);
+  ts = inject(TranslationService);
 
   contentType = signal<'blog' | 'note'>('blog');
   isDrawingOpen = signal<boolean>(false);
@@ -787,7 +789,7 @@ export class AdminEditorComponent implements OnInit {
           this.editorForm.patchValue({ content: latestContent.replace(placeholderToken, '') });
         }
 
-        alert('Image upload failed. Please verify connection and try again.');
+        alert(this.ts.t('editor.upload_error_alert'));
       }
     });
   }
@@ -815,7 +817,7 @@ export class AdminEditorComponent implements OnInit {
       action.subscribe({
         next: post => {
           this.isSaving.set(false);
-          alert('Blog post published successfully!');
+          alert(this.ts.t('editor.blog_saved_alert'));
           this.router.navigate(['/blog', post.slug]);
         },
         error: () => this.isSaving.set(false)
@@ -835,7 +837,7 @@ export class AdminEditorComponent implements OnInit {
       action.subscribe({
         next: note => {
           this.isSaving.set(false);
-          alert('Academic note saved successfully!');
+          alert(this.ts.t('editor.note_saved_alert'));
           this.router.navigate(['/notes'], { queryParams: { slug: note.slug } });
         },
         error: () => this.isSaving.set(false)

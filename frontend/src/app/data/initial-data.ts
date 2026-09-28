@@ -4,7 +4,7 @@ export const INITIAL_PORTFOLIO: PortfolioData = {
   name: 'Mahmoud Sayed Mohamed',
   alias: 'Prof',
   title: 'Junior / Fresh Backend .NET Developer',
-  location: 'Assiut, Egypt',
+  location: 'Egypt',
   summary: 'Fresh Backend .NET Developer who builds production API systems on ASP.NET Core, from data model to deployment. Delivered 200+ endpoints across freelance and product engagements, cutting response time by 97% on one production system through async query tuning. Comfortable owning a backend end-to-end: authentication, database transactions, testing, and reporting, across booking, e-commerce, POS, financial, and academic platforms.',
   metrics: [
     { label: 'Production Endpoints Delivered', value: '200+' },
@@ -85,7 +85,7 @@ export const INITIAL_PORTFOLIO: PortfolioData = {
     institution: 'Assiut National University',
     degree: 'Bachelor of Software Engineering',
     period: '09/2023 – 06/2027 (Expected)',
-    location: 'Assiut, Egypt'
+    location: 'Egypt'
   },
   training: [
     {
@@ -109,7 +109,7 @@ export const INITIAL_PORTFOLIO_AR: PortfolioData = {
   name: 'محمود سيد محمد',
   alias: 'بروف',
   title: 'مهندس باك إند دوت نت (Junior / Fresh)',
-  location: 'أسيوط، مصر',
+  location: 'مصر',
   summary: 'مهندس باك إند دوت نت شغال في بناء أنظمة APIs فعلية باستخدام ASP.NET Core، من أول تصميم الداتابيز لحد ما السيستم يترفع لايف على السيرفر. سلمت أكتر من ٢٠٠ إندبوينت في مشاريع فريلانس ومنتجات حقيقية، ونجحت في تسريع زمن استجابة استعلامات الداتابيز بنسبة ٩٧٪ على سيستم إنتاج شغال فعلياً بتحسين الاستعلامات والـ Async. متعود أشيل الباك إند من الألف للياء: الـ Authentication، معاملات الداتابيز (Transactions)، كتابة الـ Unit Tests، واستخراج التقارير، في منصات الحجوزات، الـ E-Commerce، نقاط البيع اللحظية (POS)، والأنظمة الجامعية.',
   metrics: [
     { label: 'إندبوينت شغالين في الإنتاج', value: '٢٠٠+' },
@@ -190,7 +190,7 @@ export const INITIAL_PORTFOLIO_AR: PortfolioData = {
     institution: 'جامعة أسيوط الأهلية',
     degree: 'بكالوريوس هندسة البرمجيات',
     period: '09/2023 – 06/2027 (المتوقع)',
-    location: 'أسيوط، مصر'
+    location: 'مصر'
   },
   training: [
     {

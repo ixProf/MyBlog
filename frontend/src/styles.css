@@ -98,6 +98,23 @@
 
   --transition-fast: 200ms ease;
   --transition-smooth: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Syntax Highlighting Tokens (VS Code Light Theme) */
+  --hl-color: #24292e;
+  --hl-keyword: #0000ff;
+  --hl-built-in: #267f99;
+  --hl-type: #267f99;
+  --hl-string: #a31515;
+  --hl-number: #098658;
+  --hl-comment: #008000;
+  --hl-title: #795e26;
+  --hl-attr: #001080;
+  --hl-variable: #001080;
+  --hl-literal: #0000ff;
+  --hl-meta: #2b91af;
+  --hl-operator: #000000;
+  --hl-punctuation: #000000;
+  --hl-tag: #800000;
 }
 
 /* Dark Mode Palette */
@@ -130,6 +147,23 @@ html.dark {
   --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-surface: 0 4px 14px rgba(0, 0, 0, 0.4);
   --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
+
+  /* Syntax Highlighting Tokens (VS Code Dark+ / vs2015) */
+  --hl-color: #d4d4d4;
+  --hl-keyword: #569cd6;
+  --hl-built-in: #4ec9b0;
+  --hl-type: #4ec9b0;
+  --hl-string: #ce9178;
+  --hl-number: #b5cea8;
+  --hl-comment: #6a9955;
+  --hl-title: #dcdcaa;
+  --hl-attr: #9cdcfe;
+  --hl-variable: #9cdcfe;
+  --hl-literal: #569cd6;
+  --hl-meta: #9b9b9b;
+  --hl-operator: #d4d4d4;
+  --hl-punctuation: #d4d4d4;
+  --hl-tag: #569cd6;
 }
 
 /* Reset & Box Sizing */
@@ -510,7 +544,130 @@ a {
   padding: 0;
   background-color: transparent;
   border: none;
+  color: var(--hl-color, var(--text-primary));
+  font-family: var(--font-code);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Explicit Markdown Formatting */
+.markdown-body strong,
+.markdown-body b {
+  font-weight: 700;
   color: var(--text-primary);
+}
+
+.markdown-body em,
+.markdown-body i {
+  font-style: italic;
+}
+
+/* VS Code Syntax Highlighting Theme (Light & Dark Responsive) */
+code.hljs,
+.markdown-body pre code.hljs {
+  color: var(--hl-color);
+  background: transparent;
+}
+
+.hljs-keyword,
+.hljs-literal,
+.hljs-symbol,
+.hljs-name {
+  color: var(--hl-keyword);
+}
+
+.hljs-link {
+  color: var(--hl-keyword);
+  text-decoration: underline;
+}
+
+.hljs-built_in,
+.hljs-type {
+  color: var(--hl-type);
+}
+
+.hljs-number,
+.hljs-class {
+  color: var(--hl-number);
+}
+
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: var(--hl-string);
+}
+
+.hljs-regexp,
+.hljs-template-tag {
+  color: var(--hl-string);
+}
+
+.hljs-title,
+.hljs-function,
+.hljs-section {
+  color: var(--hl-title);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--hl-comment);
+  font-style: italic;
+}
+
+.hljs-doctag {
+  color: var(--hl-comment);
+}
+
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: var(--hl-meta);
+}
+
+.hljs-tag {
+  color: var(--hl-tag);
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attr,
+.hljs-attribute,
+.hljs-params {
+  color: var(--hl-attr);
+}
+
+.hljs-operator,
+.hljs-punctuation {
+  color: var(--hl-operator);
+}
+
+.hljs-bullet,
+.hljs-selector-tag,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: var(--hl-keyword);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-addition {
+  background-color: rgba(78, 201, 176, 0.15);
+  color: #4ec9b0;
+  display: inline-block;
+  width: 100%;
+}
+
+.hljs-deletion {
+  background-color: rgba(206, 145, 120, 0.15);
+  color: #ce9178;
+  display: inline-block;
+  width: 100%;
 }
 
 .markdown-body table {

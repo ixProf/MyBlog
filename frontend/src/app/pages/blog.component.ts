@@ -81,8 +81,8 @@ import { TranslationService } from '../services/translation.service';
                   </div>
                   @if (authService.isAdmin()) {
                     <div class="admin-actions">
-                      <a [routerLink]="['/editor']" [queryParams]="{ editId: post.id, type: 'blog' }" class="action-link" title="Edit in Obsidian Editor">{{ ts.t('blog.edit') }}</a>
-                      <button type="button" class="action-link delete-link" (click)="onDelete(post.id, $event)" title="Delete post">{{ ts.t('blog.delete') }}</button>
+                      <a [routerLink]="['/editor']" [queryParams]="{ editId: post.id, type: 'blog' }" class="action-link" [title]="ts.t('blog.edit_title')">{{ ts.t('blog.edit') }}</a>
+                      <button type="button" class="action-link delete-link" (click)="onDelete(post.id, $event)" [title]="ts.t('blog.delete_title')">{{ ts.t('blog.delete') }}</button>
                     </div>
                   }
                 </div>
@@ -324,7 +324,7 @@ export class BlogComponent {
 
   onDelete(id: number, e: Event): void {
     e.stopPropagation();
-    if (confirm('Are you sure you want to delete this blog post?')) {
+    if (confirm(this.ts.t('blog.delete_confirm'))) {
       this.blogService.deletePost(id).subscribe();
     }
   }

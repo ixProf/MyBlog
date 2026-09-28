@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { AskService } from '../services/ask.service';
+import { TranslationService } from '../services/translation.service';
 import { Question } from '../models/models';
 
 @Component({
@@ -15,13 +16,13 @@ import { Question } from '../models/models';
         <div class="back-nav-row">
           <a routerLink="/ask" class="back-link">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            <span>Back to Q&amp;A</span>
+            <span>{{ ts.t('ask.back_to_qa') }}</span>
           </a>
         </div>
 
         @if (isLoading()) {
           <div class="card loading-card">
-            <p>Loading answer...</p>
+            <p>{{ ts.t('ask.loading_answer') }}</p>
           </div>
         } @else if (question()) {
           <!-- Main Detail Card -->
@@ -29,13 +30,13 @@ import { Question } from '../models/models';
             <!-- Thread Banner if follow-up -->
             @if (question()?.parent_id) {
               <div class="thread-banner">
-                <span class="thread-label">Follow-up to</span>
+                <span class="thread-label">{{ ts.t('ask.follow_up_to') }}</span>
                 <a
                   [routerLink]="['/ask/answers', question()?.parent_id]"
                   class="thread-link"
-                  [title]="question()?.parent_question_text || 'View parent question'"
+                  [title]="question()?.parent_question_text || ts.t('ask.original_question')"
                 >
-                  &ldquo;{{ question()?.parent_question_text || 'Original Question' }}&rdquo;
+                  &ldquo;{{ question()?.parent_question_text || ts.t('ask.original_question') }}&rdquo;
                 </a>
               </div>
             }
@@ -48,7 +49,7 @@ import { Question } from '../models/models';
               </div>
 
               <time class="full-date-label">
-                Answered on {{ formattedFullDate() }}
+                {{ ts.t('ask.answered_on', { date: formattedFullDate() }) }}
               </time>
             </header>
 
@@ -63,7 +64,7 @@ import { Question } from '../models/models';
             <section class="answer-section" aria-label="Prof's Answer">
               <div class="verified-author-badge">
                 <span class="badge-dot">●</span>
-                <span>Prof • Verified Answer</span>
+                <span>{{ ts.t('ask.verified_answer') }}</span>
               </div>
 
               <div class="answer-body">
@@ -83,7 +84,7 @@ import { Question } from '../models/models';
                   [disabled]="hasLiked()"
                   class="action-btn like-btn"
                   [class.active]="hasLiked()"
-                  [title]="hasLiked() ? 'Liked' : 'Like this answer'"
+                  [title]="hasLiked() ? ts.t('ask.liked') : ts.t('ask.like_answer')"
                   [attr.aria-label]="'Like question (' + (question()?.likes_count || 0) + ')'"
                 >
                   <svg
@@ -105,10 +106,10 @@ import { Question } from '../models/models';
                   [queryParams]="{ replyTo: question()?.id }"
                   fragment="ask-section"
                   class="action-btn follow-up-btn"
-                  title="Ask a follow-up question"
+                  [title]="ts.t('ask.reply')"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
-                  <span>Follow up</span>
+                  <span>{{ ts.t('ask.follow_up_btn') }}</span>
                 </a>
               </div>
 
@@ -119,14 +120,14 @@ import { Question } from '../models/models';
                   (click)="onShare()"
                   class="action-btn share-btn"
                   [class.copied]="copied()"
-                  title="Copy direct link to this answer"
+                  [title]="ts.t('ask.copy_answer_link')"
                 >
                   @if (copied()) {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>Copied!</span>
+                    <span>{{ ts.t('ask.copied_toast') }}</span>
                   } @else {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                    <span>Share</span>
+                    <span>{{ ts.t('ask.share') }}</span>
                   }
                 </button>
               </div>
@@ -134,9 +135,9 @@ import { Question } from '../models/models';
           </article>
         } @else {
           <div class="card not-found-card">
-            <h2>Answer Not Found</h2>
-            <p>The requested question does not exist or has not been answered yet.</p>
-            <a routerLink="/ask" class="btn btn-primary" style="margin-top: 1rem;">Back to Q&amp;A</a>
+            <h2>{{ ts.t('ask.answer_not_found_title') }}</h2>
+            <p>{{ ts.t('ask.answer_not_found_desc') }}</p>
+            <a routerLink="/ask" class="btn btn-primary" style="margin-top: 1rem;">{{ ts.t('ask.back_to_qa') }}</a>
           </div>
         }
 
@@ -144,7 +145,7 @@ import { Question } from '../models/models';
         @if (toastVisible()) {
           <div class="floating-toast" role="status" aria-live="polite">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span>Direct link copied to clipboard</span>
+            <span>{{ ts.t('ask.link_copied_clipboard') }}</span>
           </div>
         }
       </div>
@@ -375,6 +376,7 @@ export class AnswerDetailComponent implements OnInit {
   private askService = inject(AskService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  ts = inject(TranslationService);
 
   question = signal<Question | null>(null);
   isLoading = signal<boolean>(true);
@@ -457,8 +459,8 @@ export class AnswerDetailComponent implements OnInit {
 
   submitterName(): string {
     const q = this.question();
-    if (!q) return 'Anonymous';
-    if (q.is_anonymous || !q.asker_name?.trim()) return 'Anonymous';
+    if (!q) return this.ts.t('ask.by_anon');
+    if (q.is_anonymous || !q.asker_name?.trim()) return this.ts.t('ask.by_anon');
     return q.asker_name.trim();
   }
 
@@ -467,7 +469,8 @@ export class AnswerDetailComponent implements OnInit {
     if (!q) return '';
     const dateStr = q.answered_at || q.created_at;
     try {
-      return new Date(dateStr).toLocaleDateString('en-US', {
+      const locale = this.ts.currentLang() === 'ar' ? 'ar-EG' : 'en-US';
+      return new Date(dateStr).toLocaleDateString(locale, {
         weekday: 'short',
         month: 'long',
         day: 'numeric',

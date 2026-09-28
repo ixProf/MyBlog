@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-login-modal',
@@ -16,10 +17,10 @@ import { AuthService } from '../services/auth.service';
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
             <div>
-              <h3 class="modal-title">Admin Access — Prof Only</h3>
-              <p class="modal-subtitle">Single-admin authentication for Mahmoud Sayed Mohamed</p>
+              <h3 class="modal-title">{{ ts.t('login.title') }}</h3>
+              <p class="modal-subtitle">{{ ts.t('login.subtitle') }}</p>
             </div>
-            <button class="close-btn" (click)="close()" aria-label="Close modal">✕</button>
+            <button class="close-btn" (click)="close()" [attr.aria-label]="ts.t('login.close')">✕</button>
           </div>
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-form">
@@ -31,7 +32,7 @@ import { AuthService } from '../services/auth.service';
             }
 
             <div class="form-group">
-              <label for="login-username">Username</label>
+              <label for="login-username">{{ ts.t('login.username') }}</label>
               <input 
                 id="login-username" 
                 type="text" 
@@ -43,7 +44,7 @@ import { AuthService } from '../services/auth.service';
             </div>
 
             <div class="form-group">
-              <label for="login-password">Password</label>
+              <label for="login-password">{{ ts.t('login.password') }}</label>
               <input 
                 id="login-password" 
                 type="password" 
@@ -55,17 +56,17 @@ import { AuthService } from '../services/auth.service';
             </div>
 
             <div class="credentials-hint">
-              <span class="hint-label">Default Admin:</span>
+              <span class="hint-label">{{ ts.t('login.default_hint') }}</span>
               <code>prof</code> &nbsp;/&nbsp; <code>Prof&#64;2026!</code>
             </div>
 
             <div class="modal-actions">
-              <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+              <button type="button" class="btn btn-secondary" (click)="close()">{{ ts.t('login.cancel') }}</button>
               <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isLoading()" id="login-submit-btn">
                 @if (isLoading()) {
-                  <span>Authenticating...</span>
+                  <span>{{ ts.t('login.authenticating') }}</span>
                 } @else {
-                  <span>Sign In as Prof</span>
+                  <span>{{ ts.t('login.sign_in') }}</span>
                 }
               </button>
             </div>
@@ -200,6 +201,7 @@ import { AuthService } from '../services/auth.service';
 export class LoginModalComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   fb = inject(FormBuilder);
+  ts = inject(TranslationService);
 
   isOpen = signal<boolean>(false);
   isLoading = signal<boolean>(false);
