@@ -95,7 +95,7 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
               <!-- Author Signature Box -->
               <footer class="doc-footer">
                 <div class="doc-author-box card">
-                  <div class="author-avatar">P</div>
+                  <img src="/assets/logo.png" alt="Prof" class="author-avatar" width="48" height="48" />
                   <div class="author-text">
                     <h3 class="author-heading">Mahmoud Sayed Mohamed (Prof)</h3>
                     <p class="author-bio">
@@ -335,13 +335,8 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
       width: 48px;
       height: 48px;
       border-radius: var(--radius-xs);
-      background-color: var(--color-warm-peach);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      color: #2E2A26;
-      font-weight: bold;
+      object-fit: cover;
+      display: block;
       flex-shrink: 0;
     }
     .author-heading {
