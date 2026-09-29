@@ -125,7 +125,7 @@ export class AskService {
   answerAndPublish(id: string, answerText: string): Observable<{ success: boolean; question?: Question; error?: string }> {
     return this.http.patch<{ success: boolean; question?: Question; error?: string }>(
       `${this.BASE_URL}/admin/questions/${encodeURIComponent(id)}`,
-      { answer_text: answerText },
+      { answer_text: answerText, answerText: answerText },
       { withCredentials: true }
     );
   }

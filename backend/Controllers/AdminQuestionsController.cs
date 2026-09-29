@@ -95,7 +95,8 @@ public class AdminQuestionsController : ControllerBase
             return StatusCode(StatusCodes.Status401Unauthorized, new { success = false, error = "Unauthorized" });
         }
 
-        if (string.IsNullOrWhiteSpace(request.AnswerText))
+        var answer = request.GetAnswerText().Trim();
+        if (string.IsNullOrWhiteSpace(answer))
         {
             return BadRequest(new { success = false, error = "Answer text is required to publish." });
         }
@@ -106,7 +107,7 @@ public class AdminQuestionsController : ControllerBase
             return NotFound(new { success = false, error = "Question not found" });
         }
 
-        q.AnswerText = request.AnswerText.Trim();
+        q.AnswerText = answer;
         q.Status = "answered";
         q.AnsweredAt ??= DateTime.UtcNow;
 

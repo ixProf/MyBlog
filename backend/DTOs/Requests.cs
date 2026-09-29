@@ -52,7 +52,14 @@ public class AdminAnswerQuestionRequest
 {
     [JsonPropertyName("answer_text")]
     public string? AnswerTextSnake { get; set; }
+
+    [JsonPropertyName("answerText")]
     public string? AnswerText { get; set; }
 
-    public string GetAnswerText() => AnswerTextSnake ?? AnswerText ?? string.Empty;
+    public string GetAnswerText()
+    {
+        if (!string.IsNullOrWhiteSpace(AnswerTextSnake)) return AnswerTextSnake;
+        if (!string.IsNullOrWhiteSpace(AnswerText)) return AnswerText;
+        return string.Empty;
+    }
 }
