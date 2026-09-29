@@ -53,20 +53,24 @@
   --color-dark-taupe: #8E7A6B;
 
   /* Light Mode Palette (Default) */
-  --bg-main: #FDF8F3;
-  --bg-surface: #FFFFFF;
-  --bg-surface-tint: #FFF7EE;
-  --bg-surface-accent: #F7EFE6;
-  --bg-code: #F4ECE3;
+  --bg-main: #F3EDE4;
+  --bg-surface: #FAF6F0;
+  --bg-surface-tint: #EFE8DE;
+  --bg-surface-accent: #E8DFD3;
+  --bg-code: #EAE0D5;
   
+  --bg-card: var(--bg-surface);
+  --bg-card-hover: var(--bg-surface-tint);
+  --bg-card-secondary: var(--bg-surface-accent);
+
   --text-primary: #2E2A26;
   --text-secondary: #6B5F55;
   --text-muted: #8E8278;
   --text-link: #8A7667;
   
-  --border-strong: #DDCFC0;
-  --border-color: #E8DCCF;
-  --border-subtle: #F2E8DC;
+  --border-strong: #D3C3B2;
+  --border-color: #DECFC0;
+  --border-subtle: #E7DBCF;
 
   --interactive: #A8988A;
   --interactive-hover: #8F7E70;
@@ -75,7 +79,7 @@
   --btn-glow: rgba(168, 152, 138, 0.28);
   --card-hover-border: #CCBEB1;
 
-  --tag-bg: #F5EAE0;
+  --tag-bg: #EBE0D4;
   --tag-text: #6B5F55;
 
   /* Font Family Stacks: Delius primary, Arslan Wessam A automatic for Arabic script */
@@ -124,6 +128,10 @@ html.dark {
   --bg-surface-tint: #2E2925;
   --bg-surface-accent: #352F2A;
   --bg-code: #161412;
+
+  --bg-card: var(--bg-surface);
+  --bg-card-hover: var(--bg-surface-tint);
+  --bg-card-secondary: var(--bg-surface-accent);
 
   --text-primary: #EDE4DA;
   --text-secondary: #B0A399;
@@ -262,6 +270,14 @@ a {
   margin-right: auto;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .container,
+  .container-narrow {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* ==========================================================================

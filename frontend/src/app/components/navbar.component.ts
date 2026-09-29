@@ -24,7 +24,7 @@ import { TranslationService } from '../services/translation.service';
           />
           <div class="brand-text">
             <span class="brand-title">{{ translationService.t('nav.brand_title') }}</span>
-            <span class="brand-subtitle">{{ translationService.t('nav.brand_subtitle') }}</span>
+            <span class="brand-subtitle desktop-brand-subtitle">{{ translationService.t('nav.brand_subtitle') }}</span>
           </div>
         </a>
 
@@ -108,6 +108,13 @@ import { TranslationService } from '../services/translation.service';
           <button type="button" class="mobile-toggle" (click)="toggleMobileMenu()" aria-label="Toggle menu" id="mobile-menu-btn">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
+        </div>
+      </div>
+
+      <!-- Mobile Subtitle Bar: Sits in normal document flow below the navbar row on mobile -->
+      <div class="mobile-subtitle-bar">
+        <div class="container mobile-subtitle-inner">
+          <span class="brand-subtitle">{{ translationService.t('nav.brand_subtitle') }}</span>
         </div>
       </div>
 
@@ -380,9 +387,71 @@ import { TranslationService } from '../services/translation.service';
       cursor: pointer;
       font-family: inherit;
     }
+    .mobile-subtitle-bar {
+      display: none;
+    }
+    .desktop-brand-subtitle {
+      display: block;
+    }
     @media (max-width: 820px) {
       .nav-links { display: none; }
       .mobile-toggle { display: block; }
+    }
+    @media (max-width: 640px) {
+      .navbar-container {
+        height: 58px;
+        gap: 0.5rem;
+      }
+      .brand-link {
+        gap: 0.6rem;
+        min-width: 0;
+        flex-shrink: 1;
+      }
+      .brand-logo-img {
+        width: 34px;
+        height: 34px;
+      }
+      .brand-title {
+        font-size: 1.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .desktop-brand-subtitle {
+        display: none;
+      }
+      .mobile-subtitle-bar {
+        display: block;
+        background-color: var(--bg-surface-tint);
+        border-top: 1px solid var(--border-subtle);
+        padding: 0.35rem 0 0.4rem 0;
+      }
+      .mobile-subtitle-inner {
+        display: flex;
+        align-items: center;
+      }
+      .mobile-subtitle-inner .brand-subtitle {
+        font-size: 0.74rem;
+        color: var(--text-muted);
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+      }
+      .nav-actions {
+        gap: 0.45rem;
+        flex-shrink: 0;
+      }
+      .action-btn {
+        width: 34px;
+        height: 34px;
+      }
+      .lang-toggle-btn {
+        height: 34px;
+        padding: 0 0.5rem;
+        font-size: 0.8rem;
+      }
+      .mobile-toggle {
+        padding: 0.25rem;
+      }
     }
   `]
 })
