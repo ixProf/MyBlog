@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  // Redirect to login or home
-  router.navigate(['/'], { queryParams: { login: 'true' } });
+  // Silently redirect to home without exposing any admin hints
+  router.navigate(['/']);
   return false;
 };

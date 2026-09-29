@@ -5,19 +5,8 @@ namespace Backend.Data;
 
 public static class DbInitializer
 {
-    public static async Task SeedAsync(AppDbContext context)
+    public static async Task SeedAsync(AppDbContext context, IConfiguration? configuration = null)
     {
-        await context.Database.EnsureCreatedAsync();
-
-        try
-        {
-            await context.Database.ExecuteSqlRawAsync("ALTER TABLE BlogPosts ADD COLUMN RelatedPostIds TEXT DEFAULT '';");
-        }
-        catch
-        {
-            // Column already exists or table freshly created
-        }
-
         try
         {
             await context.Database.ExecuteSqlRawAsync(@"
@@ -125,29 +114,33 @@ public static class DbInitializer
         }
         catch { }
 
-        // 1. Keep Users admin account creation logic as-is (ensure admin account always exists and password is in sync)
+        // 1. Keep Users admin account creation logic in sync with configured ADMIN_PASSWORD
         var defaultAdminPassword = Environment.GetEnvironmentVariable("ADMIN_EDITOR_PASSWORD")
             ?? Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
-            ?? "Prof@2026!";
+            ?? configuration?["ADMIN_EDITOR_PASSWORD"]
+            ?? configuration?["ADMIN_PASSWORD"]
+            ?? configuration?["Admin:Password"]
+            ?? configuration?["Admin__Password"];
 
-        var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == "prof" || u.Role == "Admin");
-        if (adminUser == null)
+        if (!string.IsNullOrWhiteSpace(defaultAdminPassword))
         {
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(defaultAdminPassword);
-            context.Users.Add(new User
+            var trimmedPassword = defaultAdminPassword.Trim();
+            var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == "prof" || u.Role == "Admin");
+            if (adminUser == null)
             {
-                Username = "prof",
-                PasswordHash = passwordHash,
-                Role = "Admin",
-                DisplayName = "Prof (Mahmoud Sayed Mohamed)"
-            });
-            await context.SaveChangesAsync();
-        }
-        else if (!string.IsNullOrWhiteSpace(defaultAdminPassword) && defaultAdminPassword != "Prof@2026!")
-        {
-            if (!BCrypt.Net.BCrypt.Verify(defaultAdminPassword, adminUser.PasswordHash))
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(trimmedPassword);
+                context.Users.Add(new User
+                {
+                    Username = "prof",
+                    PasswordHash = passwordHash,
+                    Role = "Admin",
+                    DisplayName = "Prof (Mahmoud Sayed Mohamed)"
+                });
+                await context.SaveChangesAsync();
+            }
+            else if (!BCrypt.Net.BCrypt.Verify(trimmedPassword, adminUser.PasswordHash))
             {
-                adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(defaultAdminPassword);
+                adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(trimmedPassword);
                 await context.SaveChangesAsync();
             }
         }

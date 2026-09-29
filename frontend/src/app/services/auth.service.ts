@@ -44,25 +44,17 @@ export class AuthService {
   login(username: string, password: string): Observable<{ success: boolean; message?: string }> {
     return new Observable(observer => {
       // Try backend first
-      this.http.post<{ token: string; username: string; displayName: string }>(`${this.API_URL}/login`, {
-        username,
-        password
-      }).pipe(
+      this.http.post<{ token: string; username: string; displayName: string }>(
+        `${this.API_URL}/login`,
+        { username, password },
+        { withCredentials: true }
+      ).pipe(
         tap(res => {
           this.persistLogin(res.token, res.username, res.displayName);
           observer.next({ success: true });
           observer.complete();
         }),
         catchError(err => {
-          // If backend is unreachable or returns error, check local single-admin credentials
-          if (username.trim().toLowerCase() === 'prof' && password === 'Prof@2026!') {
-            const mockToken = 'mock_jwt_prof_' + Date.now();
-            this.persistLogin(mockToken, 'prof', 'Prof (Mahmoud Sayed Mohamed)');
-            observer.next({ success: true });
-            observer.complete();
-            return of(null);
-          }
-
           const message = err.error?.message || 'Invalid username or password. Only Prof has access.';
           observer.next({ success: false, message });
           observer.complete();

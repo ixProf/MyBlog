@@ -1,7 +1,7 @@
 import { environment } from '../../environments/environment';
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { Question, FeedStats, ProfileBio, QuestionSubmission } from '../models/models';
 
 @Injectable({
@@ -12,7 +12,8 @@ export class AskService {
 
   // Cached feed state
   questions = signal<Question[]>([]);
-  stats = signal<FeedStats>({ total_answered: 0, total_likes: 0 });
+  stats = signal<FeedStats>({ total_answered: 0, total_likes: 0, total_pending: 0 });
+  pendingCount = signal<number>(0);
   profile = signal<ProfileBio>({
     alias_ar: 'بروف',
     alias_en: 'Prof',
@@ -42,7 +43,14 @@ export class AskService {
       questions: Question[];
       stats: FeedStats;
       profile: ProfileBio;
-    }>(url);
+    }>(url).pipe(
+      tap(res => {
+        if (res?.stats) {
+          this.stats.set(res.stats);
+          this.pendingCount.set(res.stats.total_pending ?? 0);
+        }
+      })
+    );
   }
 
   // 2. Public Question Detail (by display_number or id)
@@ -62,7 +70,19 @@ export class AskService {
 
   // 5. Public Stats
   getStats(): Observable<{ success: boolean; stats: FeedStats; profile: ProfileBio }> {
-    return this.http.get<{ success: boolean; stats: FeedStats; profile: ProfileBio }>(`${this.BASE_URL}/questions/stats`);
+    return this.http.get<{ success: boolean; stats: FeedStats; profile: ProfileBio }>(`${this.BASE_URL}/questions/stats`).pipe(
+      tap(res => {
+        if (res?.stats) {
+          this.stats.set(res.stats);
+          this.pendingCount.set(res.stats.total_pending ?? 0);
+        }
+      })
+    );
+  }
+
+  // Helper to re-fetch and sync pending count everywhere
+  refreshPendingCount(): void {
+    this.getStats().subscribe({ error: () => {} });
   }
 
   // 6. Admin Auth: Check session
@@ -90,7 +110,15 @@ export class AskService {
   getAdminQuestions(): Observable<{ success: boolean; pending: Question[]; answered: Question[] }> {
     return this.http.get<{ success: boolean; pending: Question[]; answered: Question[] }>(`${this.BASE_URL}/admin/questions`, {
       withCredentials: true
-    });
+    }).pipe(
+      tap(res => {
+        if (res && res.success && res.pending) {
+          const count = res.pending.length;
+          this.pendingCount.set(count);
+          this.stats.update(s => ({ ...s, total_pending: count }));
+        }
+      })
+    );
   }
 
   // 10. Admin Questions: Answer & Publish

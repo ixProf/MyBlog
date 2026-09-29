@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,9 +43,8 @@ builder.Services.AddSingleton<AskRateLimitService>();
  * The application operates two distinct authentication schemes:
  * 1. JWT Bearer Authentication (TokenService):
  *    - Used by the Obsidian Admin Editor (/editor) for creating/editing blog posts and academic notes.
- *    - Validates Bearer token from the 'Authorization' header using 'Jwt:Key'.
  * 2. HMAC-SHA256 Signed Cookie Authentication (AskAuthService):
- *    - Used by the Ask Moderation Dashboard (/ask/login) for moderating visitor questions.
+ *    - Used by the Admin Console for moderating visitor questions.
  *    - Issues an HttpOnly, Secure, SameSite=None cookie ('prof_vault_token') validated with 'SESSION_SECRET'.
  * ==============================================================================================
  */
@@ -80,7 +80,8 @@ builder.Services.AddAuthorization();
 var allowedOrigins = new List<string>
 {
     "http://localhost:4200",
-    "http://127.0.0.1:4200"
+    "http://127.0.0.1:4200",
+    "https://elprof-blog.vercel.app"
 };
 
 var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? Environment.GetEnvironmentVariable("FRONTEND_URL");
@@ -91,11 +92,25 @@ if (!string.IsNullOrWhiteSpace(frontendUrl))
                    .Select(u => u.TrimEnd('/')));
 }
 
+var distinctOrigins = allowedOrigins.Distinct().ToArray();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins.Distinct().ToArray())
+        policy.WithOrigins(distinctOrigins)
+              .SetIsOriginAllowed(origin =>
+              {
+                  if (string.IsNullOrWhiteSpace(origin)) return false;
+                  if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                  {
+                      return uri.Host == "localhost"
+                          || uri.Host == "127.0.0.1"
+                          || uri.Host.EndsWith("vercel.app", StringComparison.OrdinalIgnoreCase)
+                          || distinctOrigins.Contains(origin.TrimEnd('/'), StringComparer.OrdinalIgnoreCase);
+                  }
+                  return false;
+              })
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -103,11 +118,47 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CallMeProf API",
+        Version = "v1",
+        Description = "Personal Blog & Digital Workshop API"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\nEnter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOi...\""
+    });
+
+    options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecuritySchemeReference("Bearer"),
+            new List<string>()
+        }
+    });
+});
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+
+// ---------- Swagger & Swagger UI (Available in Development & Production) ----------
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CallMeProf API v1");
+    c.RoutePrefix = "swagger";
+});
 
 // ---------- Public Health Endpoint (Zero DB overhead) ----------
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
@@ -122,13 +173,14 @@ using (var scope = app.Services.CreateScope())
     {
         await context.Database.MigrateAsync();
         logger.LogInformation("Database migrations applied successfully.");
+
+        await DbInitializer.SeedAsync(context, app.Configuration);
+        logger.LogInformation("Database seeding completed successfully.");
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Database migration failed.");
+        logger.LogError(ex, "Database migration or seeding encountered an error, continuing startup.");
     }
-
-    await DbInitializer.SeedAsync(context);
 }
 
 if (app.Environment.IsDevelopment())

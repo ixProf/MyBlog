@@ -22,6 +22,8 @@ yarn-error.log*
 appsettings.Production.json
 appsettings.*.local.json
 *.local.json
+*.local
+web.config.local
 
 # User-specific and OS files
 *.user

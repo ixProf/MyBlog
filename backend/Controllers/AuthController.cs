@@ -59,11 +59,6 @@ public class AuthController : ControllerBase
                 await _context.SaveChangesAsync();
             }
         }
-        // 3. Or fallback to initial seeded password
-        else if (request.Password.Trim() == "Prof@2026!")
-        {
-            isValid = true;
-        }
 
         if (!isValid)
         {

@@ -29,7 +29,7 @@ A unified single-admin personal platform combining:
 ## Authentication & Administration
 - Single-Admin authentication protects:
   - The **Obsidian Editor** (`/editor`) via JWT Bearer token.
-  - The **Ask Private Inbox** (`/ask/login`) via signed HttpOnly session cookie.
+  - The **Admin Console** via signed HttpOnly session cookie.
   - CRUD operations on blog posts, academic notes, and visitor questions.
 - Admin credentials and secrets are configured via environment variables or .NET user-secrets (never hardcoded in source control).
 
