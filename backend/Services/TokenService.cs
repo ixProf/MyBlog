@@ -9,6 +9,7 @@ namespace Backend.Services;
 public interface ITokenService
 {
     string GenerateToken(User user);
+    string GenerateToken(string username = "Prof", string role = "Admin", string displayName = "Prof");
 }
 
 public class TokenService : ITokenService
@@ -18,6 +19,16 @@ public class TokenService : ITokenService
     public TokenService(IConfiguration config)
     {
         _config = config;
+    }
+
+    public string GenerateToken(string username = "Prof", string role = "Admin", string displayName = "Prof")
+    {
+        return GenerateToken(new User
+        {
+            Username = username,
+            Role = role,
+            DisplayName = displayName
+        });
     }
 
     public string GenerateToken(User user)

@@ -41,7 +41,7 @@ import { TranslationService } from '../services/translation.service';
           </a>
           <a routerLink="/portfolio" routerLinkActive="active" class="nav-item" id="nav-portfolio">{{ translationService.t('nav.portfolio') }}</a>
           @if (authService.isAdmin()) {
-            <a routerLink="/patrickjean" routerLinkActive="active" class="nav-item admin-link" id="nav-editor">
+            <a routerLink="/editor" routerLinkActive="active" class="nav-item admin-link" id="nav-editor">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               {{ translationService.t('nav.editor') }}
             </a>
@@ -97,7 +97,7 @@ import { TranslationService } from '../services/translation.service';
           <!-- Admin Status (only visible when authenticated) -->
           @if (authService.isAdmin()) {
             <div class="admin-badge-group">
-              <a routerLink="/patrickjean" class="badge badge-peach" title="Admin Console">Prof</a>
+              <a routerLink="/editor" class="badge badge-peach" title="Studio Editor">Prof</a>
               <button type="button" class="btn-logout" (click)="authService.logout()" id="nav-logout-btn" [title]="translationService.t('nav.logout')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </button>
@@ -127,7 +127,7 @@ import { TranslationService } from '../services/translation.service';
           <a routerLink="/ask" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.ask') }}</a>
           <a routerLink="/portfolio" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.portfolio') }}</a>
           @if (authService.isAdmin()) {
-            <a routerLink="/patrickjean" (click)="closeMobileMenu()" class="mobile-item admin-item">{{ translationService.t('nav.editor') }}</a>
+            <a routerLink="/editor" (click)="closeMobileMenu()" class="mobile-item admin-item">{{ translationService.t('nav.editor') }}</a>
           }
           <div class="mobile-lang-row">
             <button 

@@ -78,6 +78,7 @@ public class SecurityAndAuthTests
         {
             { "Jwt:Key", "ValidJwtKeyAtLeast32CharsLong12345" },
             { "Admin:Password", "ValidAdminPassword123!" },
+            { "Admin:EditorPassword", "ValidEditorPassword123!" },
             { "Admin:SessionSecret", "ValidSessionSecretKey1234567890" }
         }).Build();
 
@@ -93,6 +94,7 @@ public class SecurityAndAuthTests
             { "ConnectionStrings:DefaultConnection", "Host=localhost;Database=test" },
             { "Jwt:Key", "short" },
             { "Admin:Password", "ValidAdminPassword123!" },
+            { "Admin:EditorPassword", "ValidEditorPassword123!" },
             { "Admin:SessionSecret", "ValidSessionSecretKey1234567890" }
         }).Build();
 
@@ -108,6 +110,7 @@ public class SecurityAndAuthTests
         {
             { "ConnectionStrings:DefaultConnection", "Host=localhost;Database=test" },
             { "Jwt:Key", "ValidJwtKeyAtLeast32CharsLong12345" },
+            { "Admin:EditorPassword", "ValidEditorPassword123!" },
             { "Admin:SessionSecret", "ValidSessionSecretKey1234567890" }
         }).Build();
 
@@ -122,11 +125,27 @@ public class SecurityAndAuthTests
         {
             { "ConnectionStrings:DefaultConnection", "Host=localhost;Database=test" },
             { "Jwt:Key", "ValidJwtKeyAtLeast32CharsLong12345" },
-            { "Admin:Password", "ValidAdminPassword123!" }
+            { "Admin:Password", "ValidAdminPassword123!" },
+            { "Admin:EditorPassword", "ValidEditorPassword123!" }
         }).Build();
 
         var ex = Assert.Throws<InvalidOperationException>(() => StartupValidator.Validate(config));
         Assert.Contains("SESSION_SECRET", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void StartupValidation_Throws_When_AdminEditorPassword_Missing()
+    {
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            { "ConnectionStrings:DefaultConnection", "Host=localhost;Database=test" },
+            { "Jwt:Key", "ValidJwtKeyAtLeast32CharsLong12345" },
+            { "Admin:Password", "ValidAdminPassword123!" },
+            { "Admin:SessionSecret", "ValidSessionSecretKey1234567890" }
+        }).Build();
+
+        var ex = Assert.Throws<InvalidOperationException>(() => StartupValidator.Validate(config));
+        Assert.Contains("ADMIN_EDITOR_PASSWORD", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -137,6 +156,7 @@ public class SecurityAndAuthTests
             { "ConnectionStrings:DefaultConnection", "Host=localhost;Database=test" },
             { "Jwt:Key", "ValidJwtKeyAtLeast32CharsLong12345" },
             { "Admin:Password", "ValidAdminPassword123!" },
+            { "Admin:EditorPassword", "ValidEditorPassword123!" },
             { "Admin:SessionSecret", "ValidSessionSecretKey1234567890" }
         }).Build();
 

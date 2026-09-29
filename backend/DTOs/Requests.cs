@@ -2,7 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace Backend.DTOs;
 
-public record LoginRequest(string Username, string Password);
+public class LoginRequest
+{
+    public string? Username { get; set; }
+    public string Password { get; set; } = string.Empty;
+}
 
 public record AuthResponse(string Token, string Username, string DisplayName);
 

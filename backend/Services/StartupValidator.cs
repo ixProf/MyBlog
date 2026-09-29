@@ -6,7 +6,8 @@ public record ValidatedConfig(
     string ConnectionString,
     string JwtKey,
     string AdminPassword,
-    string SessionSecret
+    string SessionSecret,
+    string AdminEditorPassword
 );
 
 public static class StartupValidator
@@ -45,6 +46,12 @@ public static class StartupValidator
             throw new InvalidOperationException("Startup validation failed: Missing required environment variable 'SESSION_SECRET' (or 'Admin:SessionSecret').");
         }
 
-        return new ValidatedConfig(connectionString, jwtKey, adminPassword, sessionSecret);
+        var adminEditorPassword = configuration["ADMIN_EDITOR_PASSWORD"] ?? configuration["Admin:EditorPassword"] ?? Environment.GetEnvironmentVariable("ADMIN_EDITOR_PASSWORD");
+        if (string.IsNullOrWhiteSpace(adminEditorPassword))
+        {
+            throw new InvalidOperationException("Startup validation failed: Missing required environment variable 'ADMIN_EDITOR_PASSWORD' (or 'Admin:EditorPassword').");
+        }
+
+        return new ValidatedConfig(connectionString, jwtKey, adminPassword, sessionSecret, adminEditorPassword);
     }
 }

@@ -41,12 +41,15 @@ export class AuthService {
     }
   }
 
-  login(username: string, password: string): Observable<{ success: boolean; message?: string }> {
+  login(passwordOrUsername: string, password?: string): Observable<{ success: boolean; message?: string }> {
+    const payload = password !== undefined
+      ? { username: passwordOrUsername, password }
+      : { password: passwordOrUsername };
+
     return new Observable(observer => {
-      // Try backend first
       this.http.post<{ token: string; username: string; displayName: string }>(
         `${this.API_URL}/login`,
-        { username, password },
+        payload,
         { withCredentials: true }
       ).pipe(
         tap(res => {
@@ -55,7 +58,7 @@ export class AuthService {
           observer.complete();
         }),
         catchError(err => {
-          const message = err.error?.message || 'Invalid username or password. Only Prof has access.';
+          const message = err.error?.message || 'Invalid password. Only Prof has access to the editor.';
           observer.next({ success: false, message });
           observer.complete();
           return of(null);
