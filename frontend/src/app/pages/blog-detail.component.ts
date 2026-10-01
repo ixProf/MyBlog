@@ -116,6 +116,10 @@ import { TableOfContentsComponent } from '../components/table-of-contents.compon
               <app-table-of-contents [items]="tocItems()"></app-table-of-contents>
             </aside>
           </div>
+        } @else if (isLoading()) {
+          <div class="not-found card" style="opacity: 0.7;">
+            <p>{{ ts.t('common.loading') || 'Loading article...' }}</p>
+          </div>
         } @else {
           <div class="not-found card">
             <h2>{{ ts.t('blog.not_found_title') }}</h2>
@@ -400,6 +404,7 @@ export class BlogDetailComponent implements OnInit {
   ts = inject(TranslationService);
 
   post = signal<BlogPost | null>(null);
+  isLoading = signal<boolean>(false);
   renderedContent = signal<any>('');
   tocItems = signal<TocItem[]>([]);
 
@@ -422,11 +427,29 @@ export class BlogDetailComponent implements OnInit {
       if (slug) {
         const found = this.blogService.getPostBySlug(slug);
         if (found) {
-          this.post.set(found);
-          this.renderedContent.set(this.markdownService.render(found.content));
-          this.tocItems.set(this.markdownService.extractToc(found.content));
+          this.setPostData(found);
+        } else {
+          this.isLoading.set(true);
         }
+
+        this.blogService.fetchPostBySlug(slug).subscribe({
+          next: post => {
+            this.isLoading.set(false);
+            if (post) {
+              this.setPostData(post);
+            }
+          },
+          error: () => {
+            this.isLoading.set(false);
+          }
+        });
       }
     });
+  }
+
+  private setPostData(p: BlogPost): void {
+    this.post.set(p);
+    this.renderedContent.set(this.markdownService.render(p.content));
+    this.tocItems.set(this.markdownService.extractToc(p.content));
   }
 }

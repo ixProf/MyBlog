@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -297,13 +297,17 @@ import { TranslationService } from '../services/translation.service';
     }
   `]
 })
-export class BlogComponent {
+export class BlogComponent implements OnInit {
   blogService = inject(BlogService);
   authService = inject(AuthService);
   ts = inject(TranslationService);
 
   searchQuery = signal<string>('');
   selectedTag = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.blogService.syncWithBackend().subscribe();
+  }
 
   filteredPosts(): typeof this.blogService.posts extends () => infer T ? T : never {
     return this.blogService.getPosts(this.selectedTag() || undefined, this.searchQuery() || undefined);

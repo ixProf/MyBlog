@@ -24,25 +24,46 @@ export class BlogService {
     if (saved) {
       try {
         this.posts.set(JSON.parse(saved));
-        return;
       } catch {
-        // Fall back to initial
+        this.posts.set(INITIAL_BLOG_POSTS);
       }
+    } else {
+      this.posts.set(INITIAL_BLOG_POSTS);
     }
-    this.posts.set(INITIAL_BLOG_POSTS);
-    this.syncWithBackend();
+    this.syncWithBackend().subscribe();
   }
 
-  private syncWithBackend(): void {
-    this.http.get<BlogPost[]>(this.API_URL).pipe(
+  syncWithBackend(): Observable<BlogPost[]> {
+    return this.http.get<BlogPost[]>(this.API_URL).pipe(
       tap(serverPosts => {
         if (serverPosts && serverPosts.length > 0) {
           this.posts.set(serverPosts);
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(serverPosts));
         }
       }),
-      catchError(() => of(null))
-    ).subscribe();
+      catchError(() => of(this.posts()))
+    );
+  }
+
+  fetchPostBySlug(slug: string): Observable<BlogPost | null> {
+    const inMemory = this.getPostBySlug(slug);
+    return this.http.get<BlogPost>(`${this.API_URL}/${slug}`).pipe(
+      tap(serverPost => {
+        if (serverPost) {
+          this.posts.update(list => {
+            const index = list.findIndex(p => p.id === serverPost.id || p.slug === serverPost.slug);
+            if (index !== -1) {
+              const updated = [...list];
+              updated[index] = serverPost;
+              return updated;
+            }
+            return [serverPost, ...list];
+          });
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.posts()));
+        }
+      }),
+      catchError(() => of(inMemory || null))
+    );
   }
 
   getPosts(tag?: string, search?: string): BlogPost[] {
