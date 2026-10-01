@@ -1,4 +1,9 @@
 {
+  "common": {
+    "pagination_prev": "السابق",
+    "pagination_next": "التالي",
+    "pagination_label": "تنقل الصفحات"
+  },
   "nav": {
     "brand_title": "Call Me Prof",
     "brand_subtitle": "مهندس باك إند دوت نت",

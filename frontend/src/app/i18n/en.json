@@ -1,4 +1,9 @@
 {
+  "common": {
+    "pagination_prev": "Previous",
+    "pagination_next": "Next",
+    "pagination_label": "Pagination"
+  },
   "nav": {
     "brand_title": "Call Me Prof",
     "brand_subtitle": "Backend .NET Developer",

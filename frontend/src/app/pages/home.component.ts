@@ -1,15 +1,17 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BlogService } from '../services/blog.service';
 import { NotesService } from '../services/notes.service';
 import { PortfolioService } from '../services/portfolio.service';
 import { TranslationService } from '../services/translation.service';
+import { PaginationComponent } from '../components/pagination/pagination.component';
+import { BlogPost } from '../models/models';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PaginationComponent],
   template: `
     <div class="home-container">
       <!-- HERO SECTION -->
@@ -129,7 +131,7 @@ import { TranslationService } from '../services/translation.service';
       </section>
 
       <!-- RECENT ARTICLES -->
-      <section class="recent-section">
+      <section class="recent-section" id="recent-articles-section">
         <div class="container">
           <div class="recent-header">
             <div>
@@ -140,7 +142,7 @@ import { TranslationService } from '../services/translation.service';
           </div>
 
           <div class="articles-list">
-            @for (post of blogService.posts().slice(0, 3); track post.id) {
+            @for (post of paginatedPosts(); track post.id) {
               <article class="article-entry card card-interactive">
                 <div class="entry-meta">
                   <span class="badge badge-peach">{{ post.readTimeMinutes }} {{ ts.t('home.min_read') }}</span>
@@ -163,6 +165,13 @@ import { TranslationService } from '../services/translation.service';
               </article>
             }
           </div>
+
+          <app-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+            scrollTarget="#recent-articles-section"
+          ></app-pagination>
         </div>
       </section>
     </div>
@@ -425,4 +434,28 @@ export class HomeComponent {
   notesService = inject(NotesService);
   portfolioService = inject(PortfolioService);
   ts = inject(TranslationService);
+
+  readonly pageSize = 3;
+  currentPage = signal<number>(1);
+
+  allPublishedPosts = computed<BlogPost[]>(() => {
+    const list = [...this.blogService.posts()];
+    return list.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+  });
+
+  totalPages = computed<number>(() => {
+    return Math.max(1, Math.ceil(this.allPublishedPosts().length / this.pageSize));
+  });
+
+  paginatedPosts = computed<BlogPost[]>(() => {
+    const posts = this.allPublishedPosts();
+    const total = this.totalPages();
+    const page = Math.min(Math.max(1, this.currentPage()), total);
+    const start = (page - 1) * this.pageSize;
+    return posts.slice(start, start + this.pageSize);
+  });
+
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+  }
 }
