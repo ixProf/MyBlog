@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Backend.Data;
 using Backend.DTOs;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,16 +15,37 @@ public class AuthController : ControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _config;
+    private readonly AppDbContext _context;
+    private readonly AskRateLimitService _rateLimitService;
 
-    public AuthController(ITokenService tokenService, IConfiguration config)
+    public AuthController(
+        ITokenService tokenService,
+        IConfiguration config,
+        AppDbContext context,
+        AskRateLimitService rateLimitService)
     {
         _tokenService = tokenService;
         _config = config;
+        _context = context;
+        _rateLimitService = rateLimitService;
     }
 
     [HttpPost("login")]
-    public ActionResult<AuthResponse> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
+        string ip = GetClientIp();
+
+        // 1. Check if IP is locked out
+        var rateCheck = await _rateLimitService.CheckAdminLoginRateLimitAsync(ip, _context);
+        if (!rateCheck.Allowed)
+        {
+            return StatusCode(StatusCodes.Status429TooManyRequests, new
+            {
+                message = "Too many failed login attempts. Access temporarily locked for security.",
+                resetInSeconds = rateCheck.ResetInSeconds
+            });
+        }
+
         if (string.IsNullOrWhiteSpace(request.Password))
         {
             return BadRequest(new { message = "Password is required." });
@@ -44,12 +66,46 @@ public class AuthController : ControllerBase
 
         if (inputBytes.Length != expectedBytes.Length || !CryptographicOperations.FixedTimeEquals(inputBytes, expectedBytes))
         {
-            return Unauthorized(new { message = "Invalid credentials. Only Prof can access the editor." });
+            var failState = await _rateLimitService.RecordAdminLoginFailureAsync(ip, _context);
+            if (!failState.Allowed)
+            {
+                return StatusCode(StatusCodes.Status429TooManyRequests, new
+                {
+                    message = "Too many failed login attempts. Access temporarily locked for security.",
+                    resetInSeconds = failState.ResetInSeconds
+                });
+            }
+
+            return Unauthorized(new
+            {
+                message = "Invalid credentials. Only Prof can access the editor.",
+                remainingAttempts = failState.Remaining
+            });
         }
 
-        // Issue JWT bearer token for fixed Admin identity
+        // 2. Successful login: reset failed attempts
+        await _rateLimitService.RecordAdminLoginSuccessAsync(ip, _context);
+
+        // 3. Issue JWT bearer token for fixed Admin identity
         var token = _tokenService.GenerateToken("Prof", "Admin", "Prof (Mahmoud Sayed Mohamed)");
         return Ok(new AuthResponse(token, "Prof", "Prof (Mahmoud Sayed Mohamed)"));
+    }
+
+    private string GetClientIp()
+    {
+        var forwarded = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(forwarded))
+        {
+            return forwarded.Split(',')[0].Trim();
+        }
+
+        var realIp = Request.Headers["X-Real-IP"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(realIp))
+        {
+            return realIp.Trim();
+        }
+
+        return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "local-client";
     }
 
     [HttpGet("me")]

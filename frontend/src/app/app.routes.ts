@@ -23,13 +23,17 @@ export const routes: Routes = [
   { path: 'ask/about', component: AskAboutComponent, title: 'About Prof — Ask Prof' },
   { path: 'ask/answers/:id', component: AnswerDetailComponent, title: 'Verified Answer — Ask Prof' },
   { path: 'answers/:id', redirectTo: 'ask/answers/:id' },
-  { path: 'ask/login', component: AskAdminComponent, title: 'Admin Moderation — Ask Prof' },
-  { path: 'ask/admin', redirectTo: 'ask/login' },
+  { path: 'ask/admin', component: AskAdminComponent, canActivate: [authGuard], title: 'Admin Moderation — Ask Prof' },
 
   { path: 'portfolio', component: PortfolioComponent, title: 'Portfolio — Mahmoud Sayed Mohamed (Prof)' },
   
-  // Secret Standalone Editor Login (Direct URL Access Only)
-  { path: 'patrickjean', component: EditorLoginComponent, title: 'Studio Access — Call Me Prof' },
+  // Secret Standalone Studio Login (Sole Login Route)
+  { path: 'patrickjane', component: EditorLoginComponent, title: 'Studio Access — Call Me Prof' },
   { path: 'editor', component: AdminEditorComponent, canActivate: [authGuard], title: 'Studio — Call Me Prof' },
+
+  // Redirect old/decoy login routes silently to home
+  { path: 'patrickjean', redirectTo: '' },
+  { path: 'login', redirectTo: '' },
+  { path: 'ask/login', redirectTo: '' },
   { path: '**', redirectTo: '' }
 ];

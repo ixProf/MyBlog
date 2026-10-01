@@ -44,6 +44,57 @@ public class SecurityAndAuthTests
     }
 
     [Fact]
+    public void AuthController_GetCurrentUser_Has_AuthorizeAttribute()
+    {
+        var method = typeof(AuthController).GetMethod(nameof(AuthController.GetCurrentUser));
+        Assert.NotNull(method);
+        var attr = method.GetCustomAttribute<AuthorizeAttribute>(true);
+        Assert.NotNull(attr);
+    }
+
+    [Fact]
+    public async Task AuthController_Login_LockoutAfterRepeatedFailures_Returns429()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite("Data Source=:memory:")
+            .Options;
+        using var context = new AppDbContext(options);
+        await context.Database.OpenConnectionAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            { "ADMIN_EDITOR_PASSWORD", "SuperSecretPassword123!" },
+            { "Jwt:Key", "CallMeProfSuperSecretSecurityKey2026!LongEnoughForHmacSha256" },
+            { "Jwt:Issuer", "CallMeProf" },
+            { "Jwt:Audience", "CallMeProfApp" }
+        }).Build();
+
+        var tokenService = new TokenService(config);
+        var rateLimitService = new AskRateLimitService();
+        var controller = new AuthController(tokenService, config, context, rateLimitService);
+
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+        controller.HttpContext.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("192.168.1.100");
+
+        // Fail 4 times (within allowance)
+        for (int i = 0; i < 4; i++)
+        {
+            var failRes = await controller.Login(new LoginRequest { Password = "WrongPassword" });
+            var failObj = Assert.IsAssignableFrom<ObjectResult>(failRes.Result);
+            Assert.Equal(StatusCodes.Status401Unauthorized, failObj.StatusCode);
+        }
+
+        // 5th attempt reaches max allowed attempts and locks out immediately (429)
+        var lockedRes = await controller.Login(new LoginRequest { Password = "WrongPassword" });
+        var objResult = Assert.IsType<ObjectResult>(lockedRes.Result);
+        Assert.Equal(StatusCodes.Status429TooManyRequests, objResult.StatusCode);
+    }
+
+    [Fact]
     public async Task AdminQuestionsController_WithoutValidCookie_ReturnsUnauthorized()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()

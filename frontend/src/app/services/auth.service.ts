@@ -1,7 +1,7 @@
 import { environment } from '../../environments/environment';
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, catchError } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, of, tap, catchError, map } from 'rxjs';
 import { AuthState } from '../models/models';
 
 @Injectable({
@@ -25,20 +25,53 @@ export class AuthService {
 
   private restoreSession(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
-    const userStr = localStorage.getItem(this.USER_KEY);
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        this.authState.set({
-          token,
-          username: user.username,
-          displayName: user.displayName,
-          isAdmin: true
-        });
-      } catch {
-        this.logout();
-      }
+    if (!token) {
+      this.logout();
+      return;
     }
+
+    // Set token in state for outgoing requests, but KEEP isAdmin: false until verified by server
+    this.authState.set({
+      token,
+      username: null,
+      displayName: null,
+      isAdmin: false
+    });
+
+    // Verify session token against the backend
+    this.verifySession().subscribe();
+  }
+
+  verifySession(): Observable<boolean> {
+    const token = this.authState().token || localStorage.getItem(this.TOKEN_KEY);
+    if (!token) {
+      this.logout();
+      return of(false);
+    }
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<{ username: string; displayName: string; role: string }>(
+      `${this.API_URL}/me`,
+      { headers, withCredentials: true }
+    ).pipe(
+      map(res => {
+        if (res && res.role === 'Admin') {
+          this.authState.set({
+            token,
+            username: res.username || 'Prof',
+            displayName: res.displayName || 'Prof (Mahmoud Sayed Mohamed)',
+            isAdmin: true
+          });
+          return true;
+        }
+        this.logout();
+        return false;
+      }),
+      catchError(() => {
+        this.logout();
+        return of(false);
+      })
+    );
   }
 
   login(passwordOrUsername: string, password?: string): Observable<{ success: boolean; message?: string }> {
@@ -79,8 +112,13 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    try {
+      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.USER_KEY);
+      localStorage.removeItem('callmeprof_auth_token');
+      localStorage.removeItem('prof_token');
+    } catch {}
+
     this.authState.set({
       token: null,
       username: null,

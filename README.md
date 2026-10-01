@@ -71,8 +71,8 @@ The backend requires the following configuration keys (set via environment varia
 |---|---|---|
 | `ConnectionStrings__DefaultConnection` (or `SUPABASE_CONNECTION_STRING`) | PostgreSQL database connection string | `Host=...;Database=...;Username=...;Password=...` |
 | `Jwt__Key` (or `Jwt:Key`) | Secret key for JWT Bearer token signing | Minimum 32 characters long |
-| `ADMIN_PASSWORD` | Password for Ask admin moderation (`/ask/login`) | Strong secret password |
-| `ADMIN_EDITOR_PASSWORD` | Password for Studio / Editor JWT authentication (`/patrickjean`) | Strong secret password |
+| `ADMIN_PASSWORD` | Password for Ask admin moderation | Strong secret password |
+| `ADMIN_EDITOR_PASSWORD` | Password for Studio / Editor JWT authentication (`/patrickjane`) | Strong secret password |
 | `SESSION_SECRET` | Secret key for signing moderation cookies | Strong HMAC secret string |
 | `FRONTEND_URL` | Allowed CORS origin for frontend | `https://your-domain.vercel.app` (or comma-separated) |
 | `PORT` | Listening HTTP port | Defaults to `10000` (for container / cloud hosts) |

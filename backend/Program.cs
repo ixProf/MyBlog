@@ -79,10 +79,16 @@ builder.Services.AddAuthorization();
 // ---------- CORS ----------
 var allowedOrigins = new List<string>
 {
-    "http://localhost:4200",
-    "http://127.0.0.1:4200",
+    "https://profblog.me",
+    "https://www.profblog.me",
     "https://elprof-blog.vercel.app"
 };
+
+if (builder.Environment.IsDevelopment())
+{
+    allowedOrigins.Add("http://localhost:4200");
+    allowedOrigins.Add("http://127.0.0.1:4200");
+}
 
 var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? Environment.GetEnvironmentVariable("FRONTEND_URL");
 if (!string.IsNullOrWhiteSpace(frontendUrl))
@@ -92,7 +98,7 @@ if (!string.IsNullOrWhiteSpace(frontendUrl))
                    .Select(u => u.TrimEnd('/')));
 }
 
-var distinctOrigins = allowedOrigins.Distinct().ToArray();
+var distinctOrigins = allowedOrigins.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 
 builder.Services.AddCors(options =>
 {
@@ -102,14 +108,7 @@ builder.Services.AddCors(options =>
               .SetIsOriginAllowed(origin =>
               {
                   if (string.IsNullOrWhiteSpace(origin)) return false;
-                  if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
-                  {
-                      return uri.Host == "localhost"
-                          || uri.Host == "127.0.0.1"
-                          || uri.Host.EndsWith("vercel.app", StringComparison.OrdinalIgnoreCase)
-                          || distinctOrigins.Contains(origin.TrimEnd('/'), StringComparer.OrdinalIgnoreCase);
-                  }
-                  return false;
+                  return distinctOrigins.Contains(origin.TrimEnd('/'), StringComparer.OrdinalIgnoreCase);
               })
               .AllowAnyHeader()
               .AllowAnyMethod()
@@ -187,6 +186,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseRouting();
 
 app.UseCors("AllowFrontend");
 
