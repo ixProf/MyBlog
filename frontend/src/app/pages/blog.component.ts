@@ -1,10 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { BlogService } from '../services/blog.service';
 import { AuthService } from '../services/auth.service';
 import { TranslationService } from '../services/translation.service';
+import { BlogPost } from '../models/models';
 
 @Component({
   selector: 'app-blog',
@@ -38,12 +40,12 @@ import { TranslationService } from '../services/translation.service';
               type="text" 
               [placeholder]="ts.t('blog.search_placeholder')" 
               [ngModel]="searchQuery()"
-              (ngModelChange)="searchQuery.set($event)"
+              (ngModelChange)="onSearchChange($event)"
               class="search-input"
               id="blog-search-input"
             />
             @if (searchQuery()) {
-              <button class="clear-search" (click)="searchQuery.set('')">✕</button>
+              <button class="clear-search" (click)="onClearSearch()">✕</button>
             }
           </div>
 
@@ -52,7 +54,7 @@ import { TranslationService } from '../services/translation.service';
               type="button" 
               class="tag-chip" 
               [class.active]="selectedTag() === null" 
-              (click)="selectedTag.set(null)"
+              (click)="onSelectAllTopics()"
             >
               {{ ts.t('blog.all_topics') }}
             </button>
@@ -72,7 +74,7 @@ import { TranslationService } from '../services/translation.service';
         <!-- Blog Posts Grid -->
         @if (filteredPosts().length > 0) {
           <div class="posts-list">
-            @for (post of filteredPosts(); track post.id) {
+            @for (post of paginatedPosts(); track post.id) {
               <article class="blog-card card card-interactive" [id]="'post-card-' + post.slug">
                 <div class="blog-card-header">
                   <div class="meta-row">
@@ -108,6 +110,55 @@ import { TranslationService } from '../services/translation.service';
               </article>
             }
           </div>
+
+          <!-- Pagination Controls -->
+          @if (totalPages() > 1 || filteredPosts().length > 0) {
+            <nav class="pagination-nav" [attr.aria-label]="ts.t('blog.pagination_label')">
+              <button 
+                type="button" 
+                class="pagination-btn pagination-prev" 
+                [disabled]="currentPage() <= 1"
+                (click)="goToPage(currentPage() - 1)"
+                [attr.aria-label]="ts.t('blog.pagination_prev')"
+              >
+                <svg class="pagination-arrow" [class.rtl-flip]="ts.isRtl()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>{{ ts.t('blog.pagination_prev') }}</span>
+              </button>
+
+              <div class="pagination-numbers">
+                @for (item of getPageNumbers(); track $index) {
+                  @if (item === '...') {
+                    <span class="pagination-ellipsis">…</span>
+                  } @else {
+                    <button 
+                      type="button" 
+                      class="pagination-number" 
+                      [class.active]="item === currentPage()"
+                      (click)="goToPage(+item)"
+                      [attr.aria-current]="item === currentPage() ? 'page' : null"
+                    >
+                      {{ item }}
+                    </button>
+                  }
+                }
+              </div>
+
+              <button 
+                type="button" 
+                class="pagination-btn pagination-next" 
+                [disabled]="currentPage() >= totalPages()"
+                (click)="goToPage(currentPage() + 1)"
+                [attr.aria-label]="ts.t('blog.pagination_next')"
+              >
+                <span>{{ ts.t('blog.pagination_next') }}</span>
+                <svg class="pagination-arrow" [class.rtl-flip]="ts.isRtl()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </nav>
+          }
         } @else {
           <div class="empty-state card">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -295,22 +346,166 @@ import { TranslationService } from '../services/translation.service';
       gap: 1rem;
       color: var(--text-muted);
     }
+    .pagination-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+    .pagination-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1.1rem;
+      font-size: 0.9rem;
+      font-family: var(--font-body, inherit);
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast, 0.15s ease);
+      user-select: none;
+    }
+    .pagination-btn:hover:not(:disabled) {
+      background-color: var(--bg-card-hover);
+      border-color: var(--color-warm-peach);
+      color: var(--text-primary);
+    }
+    .pagination-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .pagination-numbers {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .pagination-number {
+      min-width: 2.35rem;
+      height: 2.35rem;
+      padding: 0 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-family: var(--font-body, inherit);
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast, 0.15s ease);
+    }
+    .pagination-number:hover:not(.active) {
+      background-color: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+    .pagination-number.active {
+      background-color: var(--bg-tint-peach, rgba(255, 219, 187, 0.18));
+      border-color: var(--color-warm-peach);
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: 0 0 12px rgba(255, 219, 187, 0.2);
+    }
+    .pagination-ellipsis {
+      padding: 0 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .pagination-arrow {
+      transition: transform var(--transition-fast, 0.15s ease);
+      flex-shrink: 0;
+    }
+    .rtl-flip {
+      transform: rotate(180deg);
+    }
   `]
 })
-export class BlogComponent implements OnInit {
+export class BlogComponent implements OnInit, OnDestroy {
   blogService = inject(BlogService);
   authService = inject(AuthService);
   ts = inject(TranslationService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   searchQuery = signal<string>('');
   selectedTag = signal<string | null>(null);
+  currentPage = signal<number>(1);
+  readonly pageSize = 6;
+
+  private queryParamsSub?: Subscription;
+
+  allFilteredPosts = computed<BlogPost[]>(() => {
+    return this.blogService.getPosts(this.selectedTag() || undefined, this.searchQuery() || undefined);
+  });
+
+  totalPages = computed<number>(() => {
+    const total = this.allFilteredPosts().length;
+    return Math.max(1, Math.ceil(total / this.pageSize));
+  });
+
+  paginatedPosts = computed<BlogPost[]>(() => {
+    const posts = this.allFilteredPosts();
+    const total = this.totalPages();
+    const page = Math.min(Math.max(1, this.currentPage()), total);
+    const start = (page - 1) * this.pageSize;
+    return posts.slice(start, start + this.pageSize);
+  });
 
   ngOnInit(): void {
     this.blogService.syncWithBackend().subscribe();
+    this.queryParamsSub = this.route.queryParamMap.subscribe(params => {
+      const pageParam = params.get('page');
+      const pageNum = pageParam ? parseInt(pageParam, 10) : 1;
+      if (!isNaN(pageNum) && pageNum > 0) {
+        this.currentPage.set(pageNum);
+      } else {
+        this.currentPage.set(1);
+      }
+    });
   }
 
-  filteredPosts(): typeof this.blogService.posts extends () => infer T ? T : never {
-    return this.blogService.getPosts(this.selectedTag() || undefined, this.searchQuery() || undefined);
+  ngOnDestroy(): void {
+    this.queryParamsSub?.unsubscribe();
+  }
+
+  filteredPosts(): BlogPost[] {
+    return this.allFilteredPosts();
+  }
+
+  goToPage(page: number, scroll: boolean = true): void {
+    const total = this.totalPages();
+    const validPage = Math.min(Math.max(1, page), total);
+    this.currentPage.set(validPage);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: validPage === 1 ? null : validPage },
+      queryParamsHandling: 'merge'
+    });
+    if (scroll && typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  onSearchChange(query: string): void {
+    this.searchQuery.set(query);
+    this.goToPage(1, false);
+  }
+
+  onClearSearch(): void {
+    this.searchQuery.set('');
+    this.goToPage(1, false);
+  }
+
+  onSelectAllTopics(): void {
+    this.selectedTag.set(null);
+    this.goToPage(1);
   }
 
   toggleTag(tag: string): void {
@@ -319,17 +514,52 @@ export class BlogComponent implements OnInit {
     } else {
       this.selectedTag.set(tag);
     }
+    this.goToPage(1);
   }
 
   resetFilters(): void {
     this.searchQuery.set('');
     this.selectedTag.set(null);
+    this.goToPage(1);
+  }
+
+  getPageNumbers(): (number | string)[] {
+    const total = this.totalPages();
+    const current = Math.min(Math.max(1, this.currentPage()), total);
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const pages: (number | string)[] = [];
+    if (current <= 4) {
+      for (let i = 1; i <= 5; i++) pages.push(i);
+      pages.push('...');
+      pages.push(total);
+    } else if (current >= total - 3) {
+      pages.push(1);
+      pages.push('...');
+      for (let i = total - 4; i <= total; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      pages.push('...');
+      pages.push(current - 1);
+      pages.push(current);
+      pages.push(current + 1);
+      pages.push('...');
+      pages.push(total);
+    }
+    return pages;
   }
 
   onDelete(id: number, e: Event): void {
     e.stopPropagation();
     if (confirm(this.ts.t('blog.delete_confirm'))) {
-      this.blogService.deletePost(id).subscribe();
+      this.blogService.deletePost(id).subscribe(() => {
+        if (this.currentPage() > this.totalPages()) {
+          this.goToPage(this.totalPages());
+        }
+      });
     }
   }
 }
+

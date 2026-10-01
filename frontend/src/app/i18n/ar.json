@@ -73,7 +73,10 @@
     "curated_label": "ترشيحات مختارة",
     "related_title": "مقالات مرتبطة",
     "not_found_title": "المقال مش موجود",
-    "not_found_desc": "المقال المطلوب مش قادرين نلاقيه."
+    "not_found_desc": "المقال المطلوب مش قادرين نلاقيه.",
+    "pagination_label": "تنقل صفحات المقالات",
+    "pagination_prev": "السابق",
+    "pagination_next": "التالي"
   },
   "notes": {
     "folders_heading": "مواد الكلية",

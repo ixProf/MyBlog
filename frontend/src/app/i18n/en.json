@@ -73,7 +73,10 @@
     "curated_label": "Curated Suggestions",
     "related_title": "Related Articles",
     "not_found_title": "Article Not Found",
-    "not_found_desc": "The requested write-up could not be located."
+    "not_found_desc": "The requested write-up could not be located.",
+    "pagination_label": "Blog pagination",
+    "pagination_prev": "Previous",
+    "pagination_next": "Next"
   },
   "notes": {
     "folders_heading": "Course Folders",
