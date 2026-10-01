@@ -90,11 +90,15 @@ if (builder.Environment.IsDevelopment())
     allowedOrigins.Add("http://127.0.0.1:4200");
 }
 
-var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? Environment.GetEnvironmentVariable("FRONTEND_URL");
+var frontendUrl = builder.Configuration["FRONTEND_URL"]
+    ?? builder.Configuration["FrontendUrl"]
+    ?? builder.Configuration["AllowedOrigins"]
+    ?? Environment.GetEnvironmentVariable("FRONTEND_URL");
+
 if (!string.IsNullOrWhiteSpace(frontendUrl))
 {
     allowedOrigins.AddRange(
-        frontendUrl.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        frontendUrl.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                    .Select(u => u.TrimEnd('/')));
 }
 
@@ -105,11 +109,6 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(distinctOrigins)
-              .SetIsOriginAllowed(origin =>
-              {
-                  if (string.IsNullOrWhiteSpace(origin)) return false;
-                  return distinctOrigins.Contains(origin.TrimEnd('/'), StringComparer.OrdinalIgnoreCase);
-              })
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
