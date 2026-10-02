@@ -57,7 +57,7 @@
   },
   "blog": {
     "label": "Engineering Log & Thoughts",
-    "title": "The Backend Dispatch",
+    "title": "Articles Area",
     "subtitle": "Deep dives into ASP.NET Core internals, database query tuning, transactional consistency, and software architecture.",
     "write_new": "Write New Post",
     "search_placeholder": "Search posts by title, keywords, or content...",
