@@ -30,6 +30,9 @@ import { TranslationService } from '../services/translation.service';
               <li><a routerLink="/">{{ ts.t('footer.nav_home') }}</a></li>
               <li><a routerLink="/blog">{{ ts.t('footer.nav_blog') }}</a></li>
               <li><a routerLink="/notes">{{ ts.t('footer.nav_notes') }}</a></li>
+              <li><a routerLink="/literature">{{ ts.t('footer.nav_literature') }}</a></li>
+              <li><a routerLink="/literature/poetry">{{ ts.t('footer.nav_poetry') }}</a></li>
+              <li><a routerLink="/literature/prose">{{ ts.t('footer.nav_prose') }}</a></li>
               <li><a routerLink="/ask">{{ ts.t('footer.nav_ask') }}</a></li>
               <li><a routerLink="/portfolio">{{ ts.t('footer.nav_portfolio') }}</a></li>
             </ul>

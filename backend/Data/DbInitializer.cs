@@ -94,6 +94,29 @@ public static class DbInitializer
 
         try
         {
+            await context.Database.ExecuteSqlRawAsync(@"
+                CREATE TABLE IF NOT EXISTS literary_pieces (
+                    id SERIAL PRIMARY KEY,
+                    type VARCHAR(32) NOT NULL,
+                    title VARCHAR(512) NOT NULL,
+                    slug VARCHAR(512) NOT NULL,
+                    content TEXT NOT NULL,
+                    excerpt TEXT,
+                    tags VARCHAR(512),
+                    published_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ,
+                    display_number INTEGER NOT NULL,
+                    hearts_count INTEGER NOT NULL DEFAULT 0
+                );
+                CREATE UNIQUE INDEX IF NOT EXISTS ""IX_literary_pieces_type_display_number"" ON literary_pieces (type, display_number);
+                CREATE INDEX IF NOT EXISTS ""IX_literary_pieces_slug"" ON literary_pieces (slug);
+            ");
+        }
+        catch { }
+
+
+        try
+        {
             if (!await context.Profiles.AnyAsync())
             {
                 context.Profiles.Add(new Profile

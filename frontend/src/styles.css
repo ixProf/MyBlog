@@ -6,45 +6,101 @@
    no generic AI gradient blobs or cliché emoji fillers.
    ========================================================================== */
 
-/* Arslan Wessam A Self-Hosted Font for Arabic Script via Unicode Range */
+/* ==========================================================================
+   SELF-HOSTED ARABIC TYPOGRAPHY VIA @FONTSOURCE (Arabic Subsets)
+   - Amiri: Classical Naskh for Arabic body text, UI, articles, notes, poems & prose
+   - Aref Ruqaa: Classical Ruq'ah style for Arabic headings and titles
+   - font-display: swap with unicode-range subsetting for optimal rendering
+   ========================================================================== */
+
+/* Amiri - Classical Naskh (Regular 400) */
 @font-face {
-  font-family: 'Arslan Wessam A';
-  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
-  font-weight: 100 900;
+  font-family: 'Amiri';
   font-style: normal;
+  font-weight: 400;
   font-display: swap;
-  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  src: url('@fontsource/amiri/files/amiri-arabic-400-normal.woff2') format('woff2'),
+       url('@fontsource/amiri/files/amiri-arabic-400-normal.woff') format('woff');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
 }
 
-/* Synthesize Arslan Wessam A directly into 'Delius' for the Arabic Unicode range */
+/* Amiri - Classical Naskh (Bold 700) */
 @font-face {
-  font-family: 'Delius';
-  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
-  font-weight: 100 900;
+  font-family: 'Amiri';
   font-style: normal;
+  font-weight: 700;
   font-display: swap;
-  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  src: url('@fontsource/amiri/files/amiri-arabic-700-normal.woff2') format('woff2'),
+       url('@fontsource/amiri/files/amiri-arabic-700-normal.woff') format('woff');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
 }
 
-/* Synthesize Arslan Wessam A into 'JetBrains Mono' for code editor and code blocks */
+/* Amiri - Classical Naskh (Italic 400) */
+@font-face {
+  font-family: 'Amiri';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/amiri/files/amiri-arabic-400-italic.woff2') format('woff2'),
+       url('@fontsource/amiri/files/amiri-arabic-400-italic.woff') format('woff');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
+}
+
+/* Amiri - Classical Naskh (Bold Italic 700) */
+@font-face {
+  font-family: 'Amiri';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/amiri/files/amiri-arabic-700-italic.woff2') format('woff2'),
+       url('@fontsource/amiri/files/amiri-arabic-700-italic.woff') format('woff');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
+}
+
+/* Aref Ruqaa - Ruq'ah Style for Arabic Headings & Titles (Regular 400) */
+@font-face {
+  font-family: 'Aref Ruqaa';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff2') format('woff2'),
+       url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff') format('woff');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
+}
+
+/* Aref Ruqaa - Ruq'ah Style for Arabic Headings & Titles (Bold 700) */
+@font-face {
+  font-family: 'Aref Ruqaa';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff2') format('woff2'),
+       url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff') format('woff');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
+}
+
+/* Synthesize Amiri into 'JetBrains Mono' for code editor and code blocks Arabic comments */
 @font-face {
   font-family: 'JetBrains Mono';
-  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
+  src: url('@fontsource/amiri/files/amiri-arabic-400-normal.woff2') format('woff2'),
+       url('@fontsource/amiri/files/amiri-arabic-400-normal.woff') format('woff');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
 }
 
-/* Synthesize Arslan Wessam A into 'Plus Jakarta Sans' */
+/* Synthesize Amiri into 'Plus Jakarta Sans' for comfortable reading fallback */
 @font-face {
   font-family: 'Plus Jakarta Sans';
-  src: url('/fonts/ArslanWessamA.ttf') format('truetype');
+  src: url('@fontsource/amiri/files/amiri-arabic-400-normal.woff2') format('woff2'),
+       url('@fontsource/amiri/files/amiri-arabic-400-normal.woff') format('woff');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
 }
+
 
 :root {
   /* Warm Base Colors */
@@ -82,11 +138,20 @@
   --tag-bg: #EBE0D4;
   --tag-text: #6B5F55;
 
-  /* Font Family Stacks: Delius primary, Arslan Wessam A automatic for Arabic script */
-  --font-primary: 'Delius', 'Arslan Wessam A', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-heading: 'Delius', 'Arslan Wessam A', cursive, sans-serif;
-  --font-code: 'JetBrains Mono', 'Arslan Wessam A', 'Fira Code', Consolas, monospace;
-  --font-arabic: 'Arslan Wessam A', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  /* Arabic Typography Tokens */
+  --font-ar-body: 'Amiri', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  --font-ar-heading: 'Aref Ruqaa', 'Amiri', 'Cairo', serif;
+  --font-body: var(--font-primary);
+  --font-arabic: var(--font-ar-body);
+
+  /* Font Family Stacks:
+     - English text renders in Delius across the brand.
+     - Arabic body, UI, blog posts, academic notes, ask, portfolio, and poems/prose automatically render in Amiri (classical Naskh).
+     - Arabic headings and titles automatically render in Aref Ruqaa (Ruq'ah style).
+     - JetBrains Mono handles code blocks, with Amiri for Arabic comments and strings. */
+  --font-primary: 'Delius', var(--font-ar-body), cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Delius', var(--font-ar-heading), cursive, sans-serif;
+  --font-code: 'JetBrains Mono', var(--font-ar-body), 'Fira Code', Consolas, monospace;
 
   /* Layout & Radii: Clean, crisp, structural */
   --radius-xs: 4px;
@@ -197,13 +262,21 @@ body {
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-/* Headings & Display: Delius with comfortable weight */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-primary);
+/* Headings & Display: Delius for English, Aref Ruqaa for Arabic */
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.hero-headline,
+.page-title,
+.section-title,
+.pillar-title,
+.entry-title,
+.poem-title,
+.literature-title {
+  font-family: var(--font-heading);
   color: var(--text-primary);
   font-weight: normal;
   letter-spacing: 0.015em;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 h1 { font-size: 2.35rem; margin-bottom: 0.85rem; }
@@ -232,7 +305,8 @@ pre, code, kbd, samp, .editor-code {
 /* Natural bi-directional paragraph detection for mixed English & Arabic content:
    Arabic paragraphs automatically render right-to-left,
    English paragraphs automatically render left-to-right,
-   and mixed lines naturally use Arslan Wessam A for Arabic and Delius for English */
+   and mixed lines naturally use Amiri for Arabic and Delius for English */
+
 .markdown-body,
 .preview-pane,
 .editor-textarea,
@@ -489,10 +563,12 @@ a {
 .markdown-body h2, 
 .markdown-body h3, 
 .markdown-body h4 {
+  font-family: var(--font-heading);
   margin-top: 2rem;
   margin-bottom: 0.85rem;
   color: var(--text-primary);
   scroll-margin-top: 100px;
+  line-height: 1.45;
 }
 
 .markdown-body h1 {
@@ -768,10 +844,29 @@ html.dark .markdown-body img {
    FULL RTL LAYOUT MIRRORING (when Arabic is active)
    ========================================================================== */
 html[dir="rtl"] {
-  --font-primary: 'Arslan Wessam A', 'Delius', cursive, sans-serif;
-  --font-heading: 'Arslan Wessam A', 'Delius', cursive, sans-serif;
+  --font-primary: var(--font-ar-body), 'Delius', cursive, sans-serif;
+  --font-heading: var(--font-ar-heading), 'Delius', cursive, sans-serif;
   line-height: 1.85;
 }
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6,
+html[dir="rtl"] .hero-title,
+html[dir="rtl"] .hero-headline,
+html[dir="rtl"] .page-title,
+html[dir="rtl"] .section-title,
+html[dir="rtl"] .pillar-title,
+html[dir="rtl"] .entry-title,
+html[dir="rtl"] .poem-title,
+html[dir="rtl"] .literature-title {
+  font-family: var(--font-heading);
+  line-height: 1.5;
+}
+
 
 /* Academic Notes Docs Layout RTL */
 html[dir="rtl"] .docs-sidebar {
@@ -997,4 +1092,46 @@ html[dir="rtl"] code * {
   text-align: left !important;
   unicode-bidi: isolate !important;
 }
+
+/* ==========================================================================
+   POETRY, LITERATURE & TASHKEEL (DIACRITICS) SUPPORT
+   - Amiri (classical Naskh) renders multi-level Arabic vocalization marks
+     (shadda, fatha, damma, kasra, tanween, sukun, dagger alif, madda)
+   - Generous line-height (2.2 - 2.4) prevents clipping between lines/verses
+   - Aref Ruqaa is applied exclusively to Arabic headings and poem titles
+   ========================================================================== */
+.poem-title,
+.literature-title,
+.poem-card .card-heading,
+.piece-title {
+  font-family: var(--font-heading) !important;
+  line-height: 1.55;
+  margin-bottom: 0.75rem;
+}
+
+.poem-body,
+.poem-verse,
+.poem-line,
+.poem-stanza,
+.literature-piece,
+.literature-body,
+.verse,
+.has-tashkeel,
+[lang="ar"] .poem-body,
+[lang="ar"] .poem-verse,
+.markdown-body .poem,
+.markdown-body .verse {
+  font-family: var(--font-ar-body);
+  line-height: 2.35;
+  letter-spacing: 0;
+  font-size: 1.15rem;
+  word-spacing: 0.05em;
+}
+
+.poem-verse,
+.poem-line {
+  padding: 0.25rem 0;
+  margin-bottom: 0.35rem;
+}
+
 

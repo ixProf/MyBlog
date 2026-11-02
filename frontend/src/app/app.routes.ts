@@ -10,6 +10,11 @@ import { AskAdminComponent } from './pages/ask-admin.component';
 import { EditorLoginComponent } from './pages/editor-login.component';
 import { PortfolioComponent } from './pages/portfolio.component';
 import { AdminEditorComponent } from './pages/admin-editor.component';
+import { LiteratureLandingComponent } from './pages/literature-landing.component';
+import { PoetryListingComponent } from './pages/poetry-listing.component';
+import { PoemDetailComponent } from './pages/poem-detail.component';
+import { ProseListingComponent } from './pages/prose-listing.component';
+import { ProseDetailComponent } from './pages/prose-detail.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -17,6 +22,15 @@ export const routes: Routes = [
   { path: 'blog', component: BlogComponent, title: 'Blog — Call Me Prof' },
   { path: 'blog/:slug', component: BlogDetailComponent, title: 'Article — Call Me Prof' },
   { path: 'notes', component: AcademicNotesComponent, title: 'Academic Notes — Call Me Prof' },
+
+  // Literature Routes
+  { path: 'literature', component: LiteratureLandingComponent, title: 'Literature — Call Me Prof' },
+  { path: 'literature/poetry', component: PoetryListingComponent, title: 'Poetry — Call Me Prof' },
+  { path: 'literature/poetry/:id', component: PoemDetailComponent, title: 'Poem — Call Me Prof' },
+  { path: 'literature/poem', redirectTo: 'literature/poetry' },
+  { path: 'literature/poem/:id', redirectTo: 'literature/poetry/:id' },
+  { path: 'literature/prose', component: ProseListingComponent, title: 'Prose — Call Me Prof' },
+  { path: 'literature/prose/:id', component: ProseDetailComponent, title: 'Prose — Call Me Prof' },
   
   // Ask Prof Routes
   { path: 'ask', component: AskComponent, title: 'Ask Prof — Public Q&A' },

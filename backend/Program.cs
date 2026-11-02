@@ -9,6 +9,40 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ---------- Local Development Environment & Secrets Loading ----------
+// Load .env file from content root or current directory if present (gitignored, for local development)
+var envCandidates = new[]
+{
+    Path.Combine(builder.Environment.ContentRootPath, ".env"),
+    Path.Combine(Directory.GetCurrentDirectory(), ".env")
+};
+foreach (var envPath in envCandidates)
+{
+    if (File.Exists(envPath))
+    {
+        foreach (var line in File.ReadAllLines(envPath))
+        {
+            var trimmed = line.Trim();
+            if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith('#')) continue;
+            var separatorIdx = trimmed.IndexOf('=');
+            if (separatorIdx > 0)
+            {
+                var key = trimmed[..separatorIdx].Trim();
+                var val = trimmed[(separatorIdx + 1)..].Trim();
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(key)))
+                {
+                    Environment.SetEnvironmentVariable(key, val);
+                }
+            }
+        }
+        builder.Configuration.AddEnvironmentVariables();
+        break;
+    }
+}
+
+builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.local.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 // ---------- Reverse Proxy & Forwarded Headers ----------
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

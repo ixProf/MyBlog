@@ -136,6 +136,80 @@ namespace backend.Migrations
                     b.ToTable("BlogPosts");
                 });
 
+            modelBuilder.Entity("Backend.Models.LiteraryPiece", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .HasJsonPropertyName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content")
+                        .HasJsonPropertyName("content");
+
+                    b.Property<int>("DisplayNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("display_number")
+                        .HasJsonPropertyName("display_number");
+
+                    b.Property<string>("Excerpt")
+                        .HasColumnType("text")
+                        .HasColumnName("excerpt")
+                        .HasJsonPropertyName("excerpt");
+
+                    b.Property<int>("HeartsCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("hearts_count")
+                        .HasJsonPropertyName("hearts_count");
+
+                    b.Property<DateTime>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_at")
+                        .HasJsonPropertyName("published_at");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("slug")
+                        .HasJsonPropertyName("slug");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("text")
+                        .HasColumnName("tags")
+                        .HasJsonPropertyName("tags");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title")
+                        .HasJsonPropertyName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type")
+                        .HasJsonPropertyName("type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasJsonPropertyName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug");
+
+                    b.HasIndex("Type", "DisplayNumber")
+                        .IsUnique();
+
+                    b.ToTable("literary_pieces", (string)null);
+                });
+
             modelBuilder.Entity("Backend.Models.Profile", b =>
                 {
                     b.Property<int>("Id")

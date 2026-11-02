@@ -187,3 +187,53 @@ public class SeedHistory
     public DateTime SeededAt { get; set; } = DateTime.UtcNow;
 }
 
+[Table("literary_pieces")]
+public class LiteraryPiece
+{
+    [Key]
+    [Column("id")]
+    [System.Text.Json.Serialization.JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [Column("type")]
+    [System.Text.Json.Serialization.JsonPropertyName("type")]
+    public string Type { get; set; } = "poem"; // "poem" or "prose"
+
+    [Column("title")]
+    [System.Text.Json.Serialization.JsonPropertyName("title")]
+    public string Title { get; set; } = string.Empty;
+
+    [Column("slug")]
+    [System.Text.Json.Serialization.JsonPropertyName("slug")]
+    public string Slug { get; set; } = string.Empty;
+
+    [Column("content")]
+    [System.Text.Json.Serialization.JsonPropertyName("content")]
+    public string Content { get; set; } = string.Empty;
+
+    [Column("excerpt")]
+    [System.Text.Json.Serialization.JsonPropertyName("excerpt")]
+    public string? Excerpt { get; set; }
+
+    [Column("tags")]
+    [System.Text.Json.Serialization.JsonPropertyName("tags")]
+    public string? Tags { get; set; }
+
+    [Column("published_at")]
+    [System.Text.Json.Serialization.JsonPropertyName("published_at")]
+    public DateTime PublishedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("updated_at")]
+    [System.Text.Json.Serialization.JsonPropertyName("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
+
+    [Column("display_number")]
+    [System.Text.Json.Serialization.JsonPropertyName("display_number")]
+    public int DisplayNumber { get; set; }
+
+    [Column("hearts_count")]
+    [System.Text.Json.Serialization.JsonPropertyName("hearts_count")]
+    public int HeartsCount { get; set; } = 0;
+}
+
+

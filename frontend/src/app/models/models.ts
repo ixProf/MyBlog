@@ -148,3 +148,24 @@ export interface AuthState {
   displayName: string | null;
   isAdmin: boolean;
 }
+
+export type LiteratureType = 'poem' | 'prose';
+
+export interface LiteraryPiece {
+  id: number;
+  type: LiteratureType;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string | null;
+  tags?: string | null;
+  published_at?: string;
+  publishedAt?: string;
+  updated_at?: string | null;
+  updatedAt?: string | null;
+  display_number: number;
+  displayNumber?: number;
+  hearts_count: number;
+  heartsCount?: number;
+}
+

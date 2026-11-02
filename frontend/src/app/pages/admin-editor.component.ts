@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BlogService } from '../services/blog.service';
 import { NotesService } from '../services/notes.service';
 import { MarkdownService } from '../services/markdown.service';
+import { LiteratureService } from '../services/literature.service';
 import { ImageUploadService } from '../services/image-upload.service';
 import { TranslationService } from '../services/translation.service';
 import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
@@ -24,7 +25,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
           </div>
 
           <div class="header-right">
-            <!-- Mode Switcher: Blog Post vs Academic Note -->
+            <!-- Mode Switcher: Blog Post vs Academic Note vs Literary Piece -->
             <div class="mode-switch">
               <button 
                 type="button" 
@@ -42,20 +43,31 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
               >
                 {{ ts.t('editor.mode_note') }}
               </button>
+              <button 
+                type="button" 
+                class="mode-btn" 
+                [class.active]="contentType() === 'literature'" 
+                (click)="switchType('literature')"
+                id="mode-literature-btn"
+              >
+                {{ ts.t('editor.mode_literature') }}
+              </button>
             </div>
 
             <!-- Toggle Drawing Canvas Button -->
-            <button 
-              type="button" 
-              class="btn btn-secondary btn-sm drawing-toggle-btn"
-              [class.active]="isDrawingOpen()"
-              (click)="isDrawingOpen.set(!isDrawingOpen())"
-              [title]="ts.t('editor.canvas_btn_title')"
-              id="btn-toggle-drawing"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
-              <span>{{ isDrawingOpen() ? ts.t('editor.hide_canvas') : ts.t('editor.draw_diagram') }}</span>
-            </button>
+            @if (contentType() !== 'literature' || litType() === 'prose') {
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm drawing-toggle-btn"
+                [class.active]="isDrawingOpen()"
+                (click)="isDrawingOpen.set(!isDrawingOpen())"
+                [title]="ts.t('editor.canvas_btn_title')"
+                id="btn-toggle-drawing"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+                <span>{{ isDrawingOpen() ? ts.t('editor.hide_canvas') : ts.t('editor.draw_diagram') }}</span>
+              </button>
+            }
 
             <!-- Save / Publish -->
             <button 
@@ -68,7 +80,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
               @if (isSaving()) {
                 <span>{{ ts.t('editor.saving') }}</span>
               } @else {
-                <span>{{ editId ? ts.t('editor.update_save') : (contentType() === 'blog' ? ts.t('editor.publish_article') : ts.t('editor.publish_note')) }}</span>
+                <span>{{ editId ? ts.t('editor.update_save') : (contentType() === 'blog' ? ts.t('editor.publish_article') : (contentType() === 'note' ? ts.t('editor.publish_note') : ts.t('editor.publish_literature'))) }}</span>
               }
             </button>
           </div>
@@ -88,6 +100,30 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
         <form [formGroup]="editorForm" class="editor-form">
           <!-- Metadata Fields -->
           <div class="metadata-grid card">
+            @if (contentType() === 'literature') {
+              <div class="form-group lit-type-field">
+                <label>{{ ts.t('editor.lit_type_label') }} <span class="req">*</span></label>
+                <div class="lit-type-selector">
+                  <button
+                    type="button"
+                    class="lit-type-btn"
+                    [class.active]="litType() === 'poem'"
+                    (click)="litType.set('poem')"
+                  >
+                    {{ ts.t('editor.lit_type_poem') }}
+                  </button>
+                  <button
+                    type="button"
+                    class="lit-type-btn"
+                    [class.active]="litType() === 'prose'"
+                    (click)="litType.set('prose')"
+                  >
+                    {{ ts.t('editor.lit_type_prose') }}
+                  </button>
+                </div>
+              </div>
+            }
+
             @if (contentType() === 'note') {
               <div class="form-group">
                 <label for="note-subject">{{ ts.t('editor.subject_label') }} <span class="req">*</span></label>
@@ -118,7 +154,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
               />
             </div>
 
-            @if (contentType() === 'blog') {
+            @if (contentType() === 'blog' || (contentType() === 'literature' && litType() === 'prose')) {
               <div class="form-group excerpt-field">
                 <label for="post-excerpt">{{ ts.t('editor.excerpt_label') }}</label>
                 <input 
@@ -126,10 +162,12 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                   type="text" 
                   formControlName="excerpt" 
                   class="input" 
-                  [placeholder]="ts.t('editor.excerpt_placeholder')"
+                  [placeholder]="contentType() === 'literature' ? ts.t('editor.excerpt_placeholder_lit') : ts.t('editor.excerpt_placeholder')"
                 />
               </div>
+            }
 
+            @if (contentType() === 'blog' || contentType() === 'literature') {
               <div class="form-group">
                 <label for="post-tags">{{ ts.t('editor.tags_label') }}</label>
                 <input 
@@ -140,7 +178,9 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                   [placeholder]="ts.t('editor.tags_placeholder')"
                 />
               </div>
+            }
 
+            @if (contentType() === 'blog') {
               <!-- Curated Related Articles Picker (Manual Curation) -->
               <div class="form-group related-curation-field">
                 <label>{{ ts.t('editor.related_label') }}</label>
@@ -162,7 +202,7 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                   }
                 </div>
               </div>
-            } @else {
+            } @else if (contentType() === 'note') {
               <div class="form-group order-field">
                 <label for="note-order">{{ ts.t('editor.order_label') }}</label>
                 <input 
@@ -176,65 +216,74 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
             }
           </div>
 
-          <!-- Markdown Formatting Ribbon -->
-          <div class="markdown-toolbar">
-            <button type="button" class="tool-action-btn" (click)="insertBold()" [title]="ts.t('editor.toolbar_bold')">
-              <strong>B</strong>
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertItalic()" [title]="ts.t('editor.toolbar_italic')">
-              <em>I</em>
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertHeading(2)" [title]="ts.t('editor.toolbar_h2')">
-              H2
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertHeading(3)" [title]="ts.t('editor.toolbar_h3')">
-              H3
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertBlockquote()" [title]="ts.t('editor.toolbar_quote')">
-              {{ ts.t('editor.toolbar_quote_label') }}
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertCodeBlock()" [title]="ts.t('editor.toolbar_code')">
-              {{ ts.t('editor.toolbar_code_label') }}
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertTable()" [title]="ts.t('editor.toolbar_table')">
-              {{ ts.t('editor.toolbar_table') }}
-            </button>
-            <button type="button" class="tool-action-btn" (click)="insertLink()" [title]="ts.t('editor.toolbar_link')">
-              {{ ts.t('editor.toolbar_link') }}
-            </button>
-            <button 
-              type="button" 
-              class="tool-action-btn" 
-              (click)="fileInputRef.click()" 
-              [disabled]="isUploadingImage()" 
-              [title]="ts.t('editor.toolbar_image_title')"
-              id="btn-upload-image"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <span>{{ ts.t('editor.toolbar_image') }}</span>
-            </button>
-            <input 
-              #fileInputRef 
-              type="file" 
-              accept="image/*" 
-              (change)="onFileSelected($event)" 
-              style="display: none;" 
-              id="image-file-input"
-            />
-            <button type="button" class="tool-action-btn" (click)="insertDivider()" [title]="ts.t('editor.toolbar_divider')">
-              {{ ts.t('editor.toolbar_divider_label') }}
-            </button>
-            <button type="button" class="tool-action-btn" (click)="toggleViewMode()">
-              <span>{{ viewMode() === 'split' ? ts.t('editor.view_full') : ts.t('editor.view_split') }}</span>
-            </button>
+          <!-- Markdown Formatting Ribbon (Only for Blog, Notes, and Prose) -->
+          @if (contentType() !== 'literature' || litType() === 'prose') {
+            <div class="markdown-toolbar">
+              <button type="button" class="tool-action-btn" (click)="insertBold()" [title]="ts.t('editor.toolbar_bold')">
+                <strong>B</strong>
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertItalic()" [title]="ts.t('editor.toolbar_italic')">
+                <em>I</em>
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertHeading(2)" [title]="ts.t('editor.toolbar_h2')">
+                H2
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertHeading(3)" [title]="ts.t('editor.toolbar_h3')">
+                H3
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertBlockquote()" [title]="ts.t('editor.toolbar_quote')">
+                {{ ts.t('editor.toolbar_quote_label') }}
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertCodeBlock()" [title]="ts.t('editor.toolbar_code')">
+                {{ ts.t('editor.toolbar_code_label') }}
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertTable()" [title]="ts.t('editor.toolbar_table')">
+                {{ ts.t('editor.toolbar_table') }}
+              </button>
+              <button type="button" class="tool-action-btn" (click)="insertLink()" [title]="ts.t('editor.toolbar_link')">
+                {{ ts.t('editor.toolbar_link') }}
+              </button>
+              <button 
+                type="button" 
+                class="tool-action-btn" 
+                (click)="fileInputRef.click()" 
+                [disabled]="isUploadingImage()" 
+                [title]="ts.t('editor.toolbar_image_title')"
+                id="btn-upload-image"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>{{ ts.t('editor.toolbar_image') }}</span>
+              </button>
+              <input 
+                #fileInputRef 
+                type="file" 
+                accept="image/*" 
+                (change)="onFileSelected($event)" 
+                style="display: none;" 
+                id="image-file-input"
+              />
+              <button type="button" class="tool-action-btn" (click)="insertDivider()" [title]="ts.t('editor.toolbar_divider')">
+                {{ ts.t('editor.toolbar_divider_label') }}
+              </button>
+              <button type="button" class="tool-action-btn" (click)="toggleViewMode()">
+                <span>{{ viewMode() === 'split' ? ts.t('editor.view_full') : ts.t('editor.view_split') }}</span>
+              </button>
 
-            @if (isUploadingImage()) {
-              <div class="upload-inline-indicator" role="status" aria-live="polite">
-                <span class="upload-spinner"></span>
-                <span class="upload-status-text">{{ uploadStatusText() }}</span>
-              </div>
-            }
-          </div>
+              @if (isUploadingImage()) {
+                <div class="upload-inline-indicator" role="status" aria-live="polite">
+                  <span class="upload-spinner"></span>
+                  <span class="upload-status-text">{{ uploadStatusText() }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <!-- Poem Toolbar -->
+            <div class="markdown-toolbar poem-toolbar">
+              <button type="button" class="tool-action-btn" (click)="toggleViewMode()">
+                <span>{{ viewMode() === 'split' ? ts.t('editor.view_full') : ts.t('editor.view_split') }}</span>
+              </button>
+            </div>
+          }
 
           <!-- Editor Body (Write vs Side-by-Side Live Preview) -->
           <div class="editor-workspace" [class.split-view]="viewMode() === 'split'">
@@ -244,22 +293,50 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
                 #textareaRef
                 formControlName="content" 
                 class="editor-textarea" 
-                [placeholder]="ts.t('editor.textarea_placeholder')"
+                [placeholder]="contentType() === 'literature' && litType() === 'poem' ? ts.t('editor.poem_content_placeholder') : (contentType() === 'literature' && litType() === 'prose' ? ts.t('editor.prose_content_placeholder') : ts.t('editor.textarea_placeholder'))"
                 id="markdown-editor-textarea"
                 dir="auto"
                 (paste)="onPaste($event)"
                 (drop)="onDrop($event)"
                 (dragover)="onDragOver($event)"
               ></textarea>
+              @if (contentType() === 'literature' && litType() === 'poem') {
+                <div class="poem-format-hint card">
+                  <span class="hint-icon">💡</span>
+                  <span>{{ ts.t('editor.poem_hint') }}</span>
+                </div>
+              }
             </div>
 
-            <!-- Obsidian-style Live Preview Pane -->
+            <!-- Live Preview Pane -->
             @if (viewMode() === 'split') {
               <div class="preview-pane card">
                 <div class="preview-header">
                   <span class="preview-label">{{ ts.t('editor.live_preview') }}</span>
                 </div>
-                <div class="markdown-body" [innerHTML]="livePreview()" dir="auto"></div>
+                @if (contentType() === 'literature' && litType() === 'poem') {
+                  <div class="poem-preview-body">
+                    <h1 class="preview-poem-title" dir="auto">{{ editorForm.get('title')?.value || '...' }}</h1>
+                    <hr class="preview-poem-divider" />
+                    <div class="preview-verses-container">
+                      @for (line of parsedPreviewVerses(); track $index) {
+                        @if (line.isStanzaBreak) {
+                          <div class="preview-stanza-break" aria-hidden="true"></div>
+                        } @else if (line.isTwoPart) {
+                          <div class="preview-verse-row" dir="auto">
+                            <div class="preview-hemistich">{{ line.first }}</div>
+                            <div class="preview-gutter"><span class="preview-ornament">✱</span></div>
+                            <div class="preview-hemistich">{{ line.second }}</div>
+                          </div>
+                        } @else {
+                          <div class="preview-verse-single" dir="auto">{{ line.first }}</div>
+                        }
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <div class="markdown-body" [innerHTML]="livePreview()" dir="auto"></div>
+                }
               </div>
             }
           </div>
@@ -501,9 +578,130 @@ import { DrawingCanvasComponent } from '../components/drawing-canvas.component';
       letter-spacing: 0.08em;
       color: var(--text-muted);
     }
+    /* Literary Piece Type Selector */
+    .lit-type-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+    .lit-type-btn {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-xs);
+      background-color: var(--bg-surface-tint);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .lit-type-btn:hover {
+      border-color: var(--interactive-accent);
+      color: var(--text-primary);
+    }
+    .lit-type-btn.active {
+      background-color: var(--interactive-accent);
+      border-color: var(--interactive-accent);
+      color: #fff;
+    }
+
+    /* Poem Format Hint */
+    .poem-format-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      margin-top: 0.75rem;
+      padding: 0.85rem 1.15rem;
+      background-color: var(--bg-surface-tint);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .hint-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* Poem Live Preview */
+    .poem-preview-body {
+      padding: 1.5rem 0.5rem;
+    }
+    .preview-poem-title {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-family: var(--font-heading);
+      color: var(--text-primary);
+      margin: 0 0 1.25rem 0;
+      line-height: 1.35;
+    }
+    .preview-poem-divider {
+      border: 0;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 auto 2rem auto;
+      width: 100%;
+      opacity: 0.8;
+    }
+    .preview-verses-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .preview-verse-row {
+      display: grid;
+      grid-template-columns: 1fr 30px 1fr;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 0.65rem;
+    }
+    .preview-hemistich {
+      text-align: center;
+      font-size: 1.2rem;
+      line-height: 2.4;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+    .preview-gutter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-ornament {
+      color: var(--text-muted);
+      opacity: 0.55;
+      font-size: 0.95rem;
+    }
+    .preview-verse-single {
+      text-align: center;
+      font-size: 1.2rem;
+      line-height: 2.4;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      margin-bottom: 0.65rem;
+      width: 100%;
+    }
+    .preview-stanza-break {
+      height: 1.75rem;
+    }
+
     @media (max-width: 850px) {
       .editor-workspace.split-view {
         grid-template-columns: 1fr;
+      }
+      .preview-verse-row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+      }
+      .preview-gutter {
+        display: none;
       }
     }
   `]
@@ -518,10 +716,12 @@ export class AdminEditorComponent implements OnInit {
   blogService = inject(BlogService);
   notesService = inject(NotesService);
   markdownService = inject(MarkdownService);
+  literatureService = inject(LiteratureService);
   imageUploadService = inject(ImageUploadService);
   ts = inject(TranslationService);
 
-  contentType = signal<'blog' | 'note'>('blog');
+  contentType = signal<'blog' | 'note' | 'literature'>('blog');
+  litType = signal<'poem' | 'prose'>('poem');
   isDrawingOpen = signal<boolean>(false);
   viewMode = signal<'write' | 'split'>('split');
   isSaving = signal<boolean>(false);
@@ -529,6 +729,45 @@ export class AdminEditorComponent implements OnInit {
   uploadStatusText = signal<string>('');
   editId: number | null = null;
   selectedRelatedIds = signal<number[]>([]);
+
+  parsedPreviewVerses = computed<Array<{ isStanzaBreak: boolean; isTwoPart: boolean; first: string; second?: string }>>(() => {
+    const content = this.editorForm.get('content')?.value || '';
+    if (!content) return [];
+    const rawLines = content.split(/\r?\n/);
+    const result: Array<{ isStanzaBreak: boolean; isTwoPart: boolean; first: string; second?: string }> = [];
+
+    for (const rawLine of rawLines) {
+      const trimmed = rawLine.trim();
+      if (!trimmed) {
+        if (result.length > 0 && !result[result.length - 1].isStanzaBreak) {
+          result.push({ isStanzaBreak: true, isTwoPart: false, first: '' });
+        }
+        continue;
+      }
+
+      if (trimmed.includes('|')) {
+        const parts = trimmed.split('|');
+        result.push({
+          isStanzaBreak: false,
+          isTwoPart: true,
+          first: parts[0]?.trim() || '',
+          second: parts[1]?.trim() || ''
+        });
+      } else {
+        result.push({
+          isStanzaBreak: false,
+          isTwoPart: false,
+          first: trimmed
+        });
+      }
+    }
+
+    while (result.length > 0 && result[result.length - 1].isStanzaBreak) {
+      result.pop();
+    }
+
+    return result;
+  });
 
   editorForm = this.fb.group({
     title: ['', [Validators.required]],
@@ -559,8 +798,12 @@ export class AdminEditorComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
       const type = params.get('type');
-      if (type === 'note' || type === 'blog') {
+      if (type === 'note' || type === 'blog' || type === 'literature') {
         this.switchType(type);
+        const litTypeParam = params.get('litType');
+        if (litTypeParam === 'poem' || litTypeParam === 'prose') {
+          this.litType.set(litTypeParam);
+        }
       }
       const subjectParam = params.get('subject');
       if (subjectParam) {
@@ -580,7 +823,7 @@ export class AdminEditorComponent implements OnInit {
     return this.markdownService.render(content);
   }
 
-  switchType(type: 'blog' | 'note'): void {
+  switchType(type: 'blog' | 'note' | 'literature'): void {
     this.contentType.set(type);
     if (type === 'note') {
       this.editorForm.get('subject')?.setValidators([Validators.required]);
@@ -611,7 +854,7 @@ export class AdminEditorComponent implements OnInit {
           this.selectedRelatedIds.set(ids);
         }
       }
-    } else {
+    } else if (this.contentType() === 'note') {
       const note = this.notesService.notes().find(n => n.id === this.editId);
       if (note) {
         this.editorForm.patchValue({
@@ -621,6 +864,21 @@ export class AdminEditorComponent implements OnInit {
           order: note.order
         });
       }
+    } else if (this.contentType() === 'literature') {
+      this.literatureService.getPieceById(this.editId).subscribe({
+        next: (piece) => {
+          if (piece) {
+            this.litType.set(piece.type);
+            this.editorForm.patchValue({
+              title: piece.title,
+              content: piece.content,
+              excerpt: piece.excerpt || '',
+              tags: piece.tags || ''
+            });
+          }
+        },
+        error: (err) => console.error('Failed to load literary piece for editing:', err)
+      });
     }
   }
 
@@ -822,7 +1080,7 @@ export class AdminEditorComponent implements OnInit {
         },
         error: () => this.isSaving.set(false)
       });
-    } else {
+    } else if (this.contentType() === 'note') {
       const noteData = {
         subject: formVal.subject || 'General Software Engineering',
         title: formVal.title!,
@@ -841,6 +1099,30 @@ export class AdminEditorComponent implements OnInit {
           this.router.navigate(['/notes'], { queryParams: { slug: note.slug } });
         },
         error: () => this.isSaving.set(false)
+      });
+    } else if (this.contentType() === 'literature') {
+      const litData = {
+        type: this.litType(),
+        title: formVal.title!,
+        content: formVal.content!,
+        excerpt: formVal.excerpt || null,
+        tags: formVal.tags || null
+      };
+
+      const action = this.editId
+        ? this.literatureService.updatePiece(this.editId, litData)
+        : this.literatureService.createPiece(litData);
+
+      action.subscribe({
+        next: piece => {
+          this.isSaving.set(false);
+          const routeType = piece.type === 'poem' ? 'poetry' : 'prose';
+          this.router.navigate(['/literature', routeType, piece.display_number]);
+        },
+        error: (err) => {
+          console.error('Failed to save literary piece:', err);
+          this.isSaving.set(false);
+        }
       });
     }
   }

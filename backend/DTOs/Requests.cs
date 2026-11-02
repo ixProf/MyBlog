@@ -67,3 +67,14 @@ public class AdminAnswerQuestionRequest
         return string.Empty;
     }
 }
+
+public record CreateLiteraryPieceRequest(string Type, string Title, string Content, string? Excerpt = null, string? Tags = null);
+
+public record UpdateLiteraryPieceRequest(string Type, string Title, string Content, string? Excerpt = null, string? Tags = null);
+
+public class HeartLiteratureRequest
+{
+    [JsonPropertyName("action")]
+    public string? Action { get; set; } = "add";
+}
+

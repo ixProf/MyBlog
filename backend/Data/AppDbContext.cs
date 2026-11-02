@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<AdminLoginAttempt> AdminLoginAttempts => Set<AdminLoginAttempt>();
     public DbSet<Profile> Profiles => Set<Profile>();
     public DbSet<SeedHistory> SeedHistories => Set<SeedHistory>();
+    public DbSet<LiteraryPiece> LiteraryPieces => Set<LiteraryPiece>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,6 +72,14 @@ public class AppDbContext : DbContext
             entity.ToTable("seed_history");
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Key).IsUnique();
+        });
+
+        modelBuilder.Entity<LiteraryPiece>(entity =>
+        {
+            entity.ToTable("literary_pieces");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.Type, e.DisplayNumber }).IsUnique();
+            entity.HasIndex(e => e.Slug);
         });
     }
 }

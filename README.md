@@ -20,7 +20,8 @@ A unified single-admin personal platform combining:
 - **Typography**: 
   - English headings & brand: **Delius** (Google Fonts).
   - English body text: **Plus Jakarta Sans** (Google Fonts).
-  - Arabic text: **Arslan Wessam A** (`public/fonts/ArslanWessamA.ttf` via `@font-face` and `[lang="ar"]` / `.font-arabic`).
+  - Arabic body text & UI: **Amiri** (classical Naskh self-hosted via `@fontsource/amiri`).
+  - Arabic headings: **Aref Ruqaa** (Ruq'ah style self-hosted via `@fontsource/aref-ruqaa`).
   - Code blocks: **JetBrains Mono**.
 - **Dark/Light Mode Toggle**: Header button toggling themes instantly with persistence in `localStorage`.
 

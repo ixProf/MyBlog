@@ -232,4 +232,29 @@ public class AskRateLimitService
             ResetInSeconds = Math.Max(1, (int)Math.Ceiling((rec.ResetAt - now).TotalSeconds))
         };
     }
+
+    public RateLimitCheckResult CheckHeartRateLimit(string ip, int maxRequests = 30, int windowMinutes = 1)
+    {
+        var now = DateTime.UtcNow;
+        var window = TimeSpan.FromMinutes(windowMinutes);
+        string key = $"lit_heart_{ip}";
+
+        var rec = _memStore.AddOrUpdate(key,
+            _ => (1, now.Add(window)),
+            (_, old) => now > old.ResetAt ? (1, now.Add(window)) : (old.Count + 1, old.ResetAt));
+
+        if (rec.Count > maxRequests)
+        {
+            int resetSeconds = Math.Max(1, (int)Math.Ceiling((rec.ResetAt - now).TotalSeconds));
+            return new RateLimitCheckResult { Allowed = false, Remaining = 0, ResetInSeconds = resetSeconds };
+        }
+
+        return new RateLimitCheckResult
+        {
+            Allowed = true,
+            Remaining = maxRequests - rec.Count,
+            ResetInSeconds = Math.Max(1, (int)Math.Ceiling((rec.ResetAt - now).TotalSeconds))
+        };
+    }
 }
+

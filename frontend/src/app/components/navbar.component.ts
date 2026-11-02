@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import { AskService } from '../services/ask.service';
@@ -33,6 +33,40 @@ import { TranslationService } from '../services/translation.service';
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" id="nav-home">{{ translationService.t('nav.home') }}</a>
           <a routerLink="/blog" routerLinkActive="active" class="nav-item" id="nav-blog">{{ translationService.t('nav.blog') }}</a>
           <a routerLink="/notes" routerLinkActive="active" class="nav-item" id="nav-notes">{{ translationService.t('nav.notes') }}</a>
+          
+          <!-- Literature Dropdown Menu (Desktop) -->
+          <div 
+            class="nav-dropdown" 
+            (mouseenter)="isLitDropdownOpen.set(true)" 
+            (mouseleave)="isLitDropdownOpen.set(false)"
+            id="nav-literature-dropdown"
+          >
+            <a 
+              routerLink="/literature"
+              class="nav-item nav-dropdown-btn" 
+              [class.active]="isLiteratureActive()"
+              aria-haspopup="true"
+              [attr.aria-expanded]="isLitDropdownOpen()"
+              id="nav-literature-btn"
+            >
+              <span>{{ translationService.t('nav.literature') }}</span>
+              <svg class="dropdown-chevron" [class.rotated]="isLitDropdownOpen()" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </a>
+            @if (isLitDropdownOpen()) {
+              <div class="dropdown-menu">
+                <a routerLink="/literature" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="dropdown-link" id="nav-literature-overview" (click)="isLitDropdownOpen.set(false)">
+                  {{ translationService.t('nav.literature') }}
+                </a>
+                <a routerLink="/literature/poetry" routerLinkActive="active" class="dropdown-link" id="nav-poetry" (click)="isLitDropdownOpen.set(false)">
+                  {{ translationService.t('nav.poetry') }}
+                </a>
+                <a routerLink="/literature/prose" routerLinkActive="active" class="dropdown-link" id="nav-prose" (click)="isLitDropdownOpen.set(false)">
+                  {{ translationService.t('nav.prose') }}
+                </a>
+              </div>
+            }
+          </div>
+
           <a routerLink="/ask" routerLinkActive="active" class="nav-item" id="nav-ask">
             {{ translationService.t('nav.ask') }}
             @if (authService.isAdmin() && pendingQuestionsCount() > 0) {
@@ -124,6 +158,22 @@ import { TranslationService } from '../services/translation.service';
           <a routerLink="/" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.home') }}</a>
           <a routerLink="/blog" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.blog') }}</a>
           <a routerLink="/notes" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.notes') }}</a>
+          
+          <!-- Expandable Literature Group (Mobile) -->
+          <div class="mobile-group">
+            <button type="button" class="mobile-item mobile-group-toggle" (click)="toggleMobileLit()" id="mobile-literature-toggle">
+              <span>{{ translationService.t('nav.literature') }}</span>
+              <svg class="dropdown-chevron" [class.rotated]="mobileLitOpen()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            @if (mobileLitOpen()) {
+              <div class="mobile-subitems">
+                <a routerLink="/literature" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-overview">{{ translationService.t('nav.literature') }}</a>
+                <a routerLink="/literature/poetry" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-poetry">{{ translationService.t('nav.poetry') }}</a>
+                <a routerLink="/literature/prose" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-prose">{{ translationService.t('nav.prose') }}</a>
+              </div>
+            }
+          </div>
+
           <a routerLink="/ask" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.ask') }}</a>
           <a routerLink="/portfolio" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.portfolio') }}</a>
           @if (authService.isAdmin()) {
@@ -237,6 +287,103 @@ import { TranslationService } from '../services/translation.service';
     .nav-item.active::after {
       transform: scaleX(1);
       background-color: var(--interactive);
+    }
+    
+    /* Literature Dropdown Styles */
+    .nav-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .nav-dropdown-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .dropdown-chevron {
+      transition: transform var(--transition-fast);
+      opacity: 0.7;
+    }
+    .dropdown-chevron.rotated {
+      transform: rotate(180deg);
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 140px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-surface);
+      padding: 0.35rem 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      animation: fadeInFast 160ms ease-out;
+    }
+    :host-context(html[dir="rtl"]) .dropdown-menu {
+      left: auto;
+      right: 0;
+    }
+    .dropdown-link {
+      padding: 0.55rem 1rem;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+      display: block;
+      text-align: inherit;
+    }
+    .dropdown-link:hover {
+      background-color: var(--bg-surface-tint);
+      color: var(--text-primary);
+    }
+    .dropdown-link.active {
+      color: var(--interactive-accent, #E08E58);
+      font-weight: bold;
+      background-color: var(--bg-surface-tint);
+    }
+    @keyframes fadeInFast {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Mobile Group Styles */
+    .mobile-group {
+      width: 100%;
+    }
+    .mobile-group-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: inherit;
+    }
+    .mobile-subitems {
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+    :host-context(html[dir="rtl"]) .mobile-subitems {
+      padding-left: 0;
+      padding-right: 1.25rem;
+    }
+    .mobile-subitem {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      padding: 0.35rem 0;
+      display: block;
+    }
+    .mobile-subitem:hover {
+      color: var(--text-primary);
     }
     .nav-badge {
       background-color: var(--color-warm-peach);
@@ -460,8 +607,11 @@ export class NavbarComponent implements OnInit {
   themeService = inject(ThemeService);
   askService = inject(AskService);
   translationService = inject(TranslationService);
+  router = inject(Router);
 
   mobileMenuOpen = signal<boolean>(false);
+  isLitDropdownOpen = signal<boolean>(false);
+  mobileLitOpen = signal<boolean>(false);
 
   ngOnInit(): void {
     if (this.authService.isAdmin()) {
@@ -473,11 +623,22 @@ export class NavbarComponent implements OnInit {
     return this.authService.isAdmin() ? this.askService.pendingCount() : 0;
   }
 
+  isLiteratureActive(): boolean {
+    return this.router.url.startsWith('/literature');
+  }
+
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update(v => !v);
   }
 
+  toggleMobileLit(): void {
+    this.mobileLitOpen.update(v => !v);
+  }
+
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+    this.mobileLitOpen.set(false);
+    this.isLitDropdownOpen.set(false);
   }
 }
+
