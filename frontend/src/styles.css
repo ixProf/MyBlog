@@ -244,6 +244,12 @@ html.dark {
   padding: 0;
 }
 
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;

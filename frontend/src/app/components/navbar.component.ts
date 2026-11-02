@@ -155,29 +155,29 @@ import { TranslationService } from '../services/translation.service';
       <!-- Mobile Dropdown -->
       @if (mobileMenuOpen()) {
         <div class="mobile-nav-panel">
-          <a routerLink="/" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.home') }}</a>
-          <a routerLink="/blog" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.blog') }}</a>
-          <a routerLink="/notes" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.notes') }}</a>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.home') }}</a>
+          <a routerLink="/blog" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.blog') }}</a>
+          <a routerLink="/notes" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.notes') }}</a>
           
           <!-- Expandable Literature Group (Mobile) -->
           <div class="mobile-group">
-            <button type="button" class="mobile-item mobile-group-toggle" (click)="toggleMobileLit()" id="mobile-literature-toggle">
+            <button type="button" class="mobile-item mobile-group-toggle" [class.active]="isLiteratureActive()" (click)="toggleMobileLit()" id="mobile-literature-toggle">
               <span>{{ translationService.t('nav.literature') }}</span>
               <svg class="dropdown-chevron" [class.rotated]="mobileLitOpen()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             @if (mobileLitOpen()) {
               <div class="mobile-subitems">
-                <a routerLink="/literature" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-overview">{{ translationService.t('nav.literature') }}</a>
-                <a routerLink="/literature/poetry" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-poetry">{{ translationService.t('nav.poetry') }}</a>
-                <a routerLink="/literature/prose" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-prose">{{ translationService.t('nav.prose') }}</a>
+                <a routerLink="/literature" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-overview">{{ translationService.t('nav.literature') }}</a>
+                <a routerLink="/literature/poetry" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-poetry">{{ translationService.t('nav.poetry') }}</a>
+                <a routerLink="/literature/prose" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-subitem" id="mobile-nav-prose">{{ translationService.t('nav.prose') }}</a>
               </div>
             }
           </div>
 
-          <a routerLink="/ask" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.ask') }}</a>
-          <a routerLink="/portfolio" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.portfolio') }}</a>
+          <a routerLink="/ask" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.ask') }}</a>
+          <a routerLink="/portfolio" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-item">{{ translationService.t('nav.portfolio') }}</a>
           @if (authService.isAdmin()) {
-            <a routerLink="/editor" (click)="closeMobileMenu()" class="mobile-item admin-item">{{ translationService.t('nav.editor') }}</a>
+            <a routerLink="/editor" routerLinkActive="active" (click)="closeMobileMenu()" class="mobile-item admin-item">{{ translationService.t('nav.editor') }}</a>
           }
           <div class="mobile-lang-row">
             <button 
@@ -349,41 +349,82 @@ import { TranslationService } from '../services/translation.service';
       to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Mobile Group Styles */
+    /* Mobile Menu Items & Expandable Literature Group */
+    .mobile-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-decoration: none;
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      line-height: 1.5;
+      text-align: start;
+      box-sizing: border-box;
+      transition: color var(--transition-fast), background-color var(--transition-fast);
+    }
+    .mobile-item:hover,
+    .mobile-item:focus-visible {
+      color: var(--interactive-accent, #E08E58);
+      background-color: var(--bg-surface-tint);
+    }
+    .mobile-item.active {
+      color: var(--interactive-accent, #E08E58);
+      font-weight: 600;
+    }
+    .mobile-item.admin-item {
+      color: var(--text-accent, #E08E58);
+      background-color: var(--bg-surface-accent);
+      margin-top: 0.25rem;
+    }
     .mobile-group {
       width: 100%;
     }
     .mobile-group-toggle {
-      width: 100%;
-      display: flex;
-      align-items: center;
       justify-content: space-between;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      text-align: inherit;
+    }
+    .mobile-group-toggle span {
+      display: inline-flex;
+      align-items: center;
     }
     .mobile-subitems {
-      padding-left: 1.25rem;
+      padding-left: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.25rem;
       margin-top: 0.25rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
     :host-context(html[dir="rtl"]) .mobile-subitems {
       padding-left: 0;
-      padding-right: 1.25rem;
+      padding-right: 1rem;
     }
     .mobile-subitem {
-      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      font-family: inherit;
+      font-size: 0.95rem;
       color: var(--text-secondary);
-      padding: 0.35rem 0;
-      display: block;
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: color var(--transition-fast), background-color var(--transition-fast);
     }
-    .mobile-subitem:hover {
+    .mobile-subitem:hover,
+    .mobile-subitem:focus-visible {
       color: var(--text-primary);
+      background-color: var(--bg-surface-tint);
+    }
+    .mobile-subitem.active {
+      color: var(--interactive-accent, #E08E58);
+      font-weight: 600;
+      background-color: var(--bg-surface-tint);
     }
     .nav-badge {
       background-color: var(--color-warm-peach);
@@ -471,10 +512,10 @@ import { TranslationService } from '../services/translation.service';
     .mobile-nav-panel {
       display: flex;
       flex-direction: column;
-      padding: 1rem 1.5rem;
+      padding: 0.85rem 1.25rem 1.25rem 1.25rem;
       background-color: var(--bg-card);
       border-bottom: 1px solid var(--border-color);
-      gap: 0.75rem;
+      gap: 0.3rem;
     }
     .lang-toggle-btn {
       display: inline-flex;

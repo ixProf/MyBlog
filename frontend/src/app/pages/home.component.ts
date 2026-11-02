@@ -39,6 +39,9 @@ import { BlogPost } from '../models/models';
               <a routerLink="/blog" class="btn btn-secondary" id="hero-blog-btn">
                 <span>{{ ts.t('home.btn_blog') }}</span>
               </a>
+              <a routerLink="/literature" class="btn btn-secondary" id="hero-literature-btn">
+                <span>{{ ts.t('home.btn_literature') }}</span>
+              </a>
               <a routerLink="/ask" class="btn btn-outline" id="hero-ask-btn">
                 <span>{{ ts.t('home.btn_ask') }}</span>
               </a>
