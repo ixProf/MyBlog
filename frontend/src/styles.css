@@ -7,9 +7,9 @@
    ========================================================================== */
 
 /* ==========================================================================
-   SELF-HOSTED ARABIC TYPOGRAPHY VIA @FONTSOURCE (Arabic Subsets)
+   SELF-HOSTED ARABIC TYPOGRAPHY VIA @FONTSOURCE & LOCAL FONTS
    - Amiri: Classical Naskh for Arabic body text, UI, articles, notes, poems & prose
-   - Aref Ruqaa: Classical Ruq'ah style for Arabic headings and titles
+   - Thmanyah Serif Display: Display serif font for Arabic headings and titles
    - font-display: swap with unicode-range subsetting for optimal rendering
    ========================================================================== */
 
@@ -57,25 +57,23 @@
   unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
 }
 
-/* Aref Ruqaa - Ruq'ah Style for Arabic Headings & Titles (Regular 400) */
+/* Thmanyah Serif Display - Custom Arabic Heading & Title Font (Regular & Bold/Black) */
 @font-face {
-  font-family: 'Aref Ruqaa';
+  font-family: 'Thmanyah Serif Display';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 900;
   font-display: swap;
-  src: url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff2') format('woff2'),
-       url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-400-normal.woff') format('woff');
+  src: url('/fonts/thmanyahserifdisplay-Black.woff2') format('woff2');
   unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
 }
 
-/* Aref Ruqaa - Ruq'ah Style for Arabic Headings & Titles (Bold 700) */
+/* Alias Aref Ruqaa to Thmanyah Serif Display for backward compatibility */
 @font-face {
   font-family: 'Aref Ruqaa';
   font-style: normal;
-  font-weight: 700;
+  font-weight: 400 900;
   font-display: swap;
-  src: url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff2') format('woff2'),
-       url('@fontsource/aref-ruqaa/files/aref-ruqaa-arabic-700-normal.woff') format('woff');
+  src: url('/fonts/thmanyahserifdisplay-Black.woff2') format('woff2');
   unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EEBB, U+1EEF0-1EEF1;
 }
 
@@ -140,14 +138,14 @@
 
   /* Arabic Typography Tokens */
   --font-ar-body: 'Amiri', 'Cairo', 'Segoe UI', Tahoma, sans-serif;
-  --font-ar-heading: 'Aref Ruqaa', 'Amiri', 'Cairo', serif;
+  --font-ar-heading: 'Thmanyah Serif Display', 'Aref Ruqaa', 'Amiri', 'Cairo', serif;
   --font-body: var(--font-primary);
   --font-arabic: var(--font-ar-body);
 
   /* Font Family Stacks:
      - English text renders in Delius across the brand.
      - Arabic body, UI, blog posts, academic notes, ask, portfolio, and poems/prose automatically render in Amiri (classical Naskh).
-     - Arabic headings and titles automatically render in Aref Ruqaa (Ruq'ah style).
+     - Arabic headings and titles automatically render in Thmanyah Serif Display.
      - JetBrains Mono handles code blocks, with Amiri for Arabic comments and strings. */
   --font-primary: 'Delius', var(--font-ar-body), cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Delius', var(--font-ar-heading), cursive, sans-serif;
@@ -262,7 +260,7 @@ body {
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-/* Headings & Display: Delius for English, Aref Ruqaa for Arabic */
+/* Headings & Display: Delius for English, Thmanyah Serif Display for Arabic */
 h1, h2, h3, h4, h5, h6,
 .hero-title,
 .hero-headline,
@@ -1098,7 +1096,7 @@ html[dir="rtl"] code * {
    - Amiri (classical Naskh) renders multi-level Arabic vocalization marks
      (shadda, fatha, damma, kasra, tanween, sukun, dagger alif, madda)
    - Generous line-height (2.2 - 2.4) prevents clipping between lines/verses
-   - Aref Ruqaa is applied exclusively to Arabic headings and poem titles
+   - Thmanyah Serif Display is applied exclusively to Arabic headings and poem titles
    ========================================================================== */
 .poem-title,
 .literature-title,
